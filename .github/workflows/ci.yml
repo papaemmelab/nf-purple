@@ -1,0 +1,29 @@
+name: nf-all-classifiers CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test_pipeline:
+    runs-on: ubuntu-latest
+    name: Job to run the test workflow
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Nextflow
+        env:
+          CAPSULE_LOG: none
+        run: |
+          wget -qO- get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Install nf-test
+        run: |
+          wget -qO- https://code.askimed.com/install/nf-test | bash
+          sudo mv nf-test /usr/local/bin/
+      - name: Run test data
+        run:
+          sh tests/run_test.sh
+

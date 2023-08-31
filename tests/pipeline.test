@@ -1,0 +1,20 @@
+nextflow_pipeline {
+
+  name "Purple"
+  script "main.nf"
+
+  test("The pipeline yields Purple output") {
+
+    expect {
+      with(workflow){
+        assert success
+
+        //analyze Nextflow trace file
+        assert trace.tasks().size() == 3
+
+        //Verify if strings have been written to stdout object
+        assert "Done! Check the output file" in stdout
+      }
+    }
+  }
+}
