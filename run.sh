@@ -25,4 +25,4 @@ nextflow run \
     --ensemblDataDir ${ENSEMBLDATADIR} \
     --genomeVersion ${GENOMEVERSION} \
     --refGenome ${REFGENOME} \
-    --circos ${CIRCOS}
+    --circos ${CIRCOS} -resume

@@ -69,7 +69,7 @@ process runCobalt {
 
     output:
     path "${tumor}.cobalt.ratio.tsv.gz"
-    path "${tumor}.cobalt.cobalt.ratio.pcf"
+    path "${tumor}.cobalt.ratio.pcf"
 
     script:
     """
@@ -100,20 +100,25 @@ process runPurple {
 
     output:
     path "${tumor}.purple.purity.tsv"
-    path "${tumor}.purple.purity.qc"
+    path "${tumor}.purple.qc"
     path "${tumor}.purple.purity.range.tsv"
     path "${tumor}.purple.cnv.somatic.tsv"
     path "${tumor}.purple.cnv.gene.tsv"
-    path "${tumor}.purple.sv.vcf.gz"
-    path "${tumor}.purple.somatic.vcf.gz"
-    // plot/
+    path "${tumor}.purple.segment.tsv"
+    path "${tumor}.purple.somatic.clonality.tsv"
+    path "plots/${tumor}.segment.png"
+    path "plots/${tumor}.copynumber.png"
+    path "plots/${tumor}.circos.png"
+    path "plots/${tumor}.map.png"
+    path "plots/${tumor}.input.png"
+    path "plots/${tumor}.purity.range.png"
 
     script:
     """
     hmftools purple \
     -tumor ${tumor} \
-    -amber ${amberOutput} \
-    -cobalt ${cobaltOutput} \
+    -amber ${params.outdir}/amber \
+    -cobalt ${params.outdir}/cobalt \
     -output_dir \$PWD \
     -gc_profile ${params.gcProfile} \
     -ref_genome ${params.refGenome} \
