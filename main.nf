@@ -7,10 +7,11 @@ params.loci = "reference_data/copy_number/GermlineHetPon.37.vcf.gz"
 params.gcProfile = "reference_data/copy_number/GC_profile.1000bp.37.cnp"
 params.ensemblDataDir = "reference_data/common/ensembl_data"
 params.genomeVersion = "V37"
+params.diploidRegions = "copy_number/DiploidRegions.37.bed.gz"
 
 
 log.info """\
-    A L L S O R T S    C L A S S I F I E R S
+    HMFTOOLS - PURPLE
     ========================================
     Params:
     ----------------------------------------
@@ -39,14 +40,16 @@ process runAmber {
     path tumorBam
 
     output:
-    dir 'amber'
+    path "${tumor}.amber.baf.tsv.gz"
+    path "${tumor}.amber.baf.pcf"
+    path "${tumor}.amber.qc"
 
     script:
     """
     hmftools amber \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
-        -output_dir ${output} \
+        -output_dir \$PWD \
         -threads ${params.cores} \
         -loci ${params.loci} \
         -ref_genome_version ${params.genomeVersion}
@@ -65,16 +68,18 @@ process runCobalt {
     path tumorBam
 
     output:
-    path 'outputs/cobalt'
+    path "${tumor}.cobalt.ratio.tsv.gz"
+    path "${tumor}.cobalt.cobalt.ratio.pcf"
 
     script:
     """
     hmftools cobalt \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
-        -output_dir ${output} \
+        -output_dir \$PWD \
         -threads ${params.cores} \
-        -gc_profile ${params.gcProfile}
+        -gc_profile ${params.gcProfile} \
+        -tumor_only_diploid_bed ${params.diploidRegions}
     """
 }
 
@@ -87,11 +92,21 @@ process runPurple {
 
     input:
     path tumor
-    path amberOutput
-    path cobaltOutput
+    path amber_baf_tsv
+    path amber_baf_pcf
+    path amber_qc
+    path cobalt_ratio_tsv
+    path cobalt_ratio_pcf
 
     output:
-    path 'outputs/purple'
+    path "${tumor}.purple.purity.tsv"
+    path "${tumor}.purple.purity.qc"
+    path "${tumor}.purple.purity.range.tsv"
+    path "${tumor}.purple.cnv.somatic.tsv"
+    path "${tumor}.purple.cnv.gene.tsv"
+    path "${tumor}.purple.sv.vcf.gz"
+    path "${tumor}.purple.somatic.vcf.gz"
+    // plot/
 
     script:
     """
@@ -99,7 +114,7 @@ process runPurple {
     -tumor ${tumor} \
     -amber ${amberOutput} \
     -cobalt ${cobaltOutput} \
-    -output_dir ${outidr} \
+    -output_dir \$PWD \
     -gc_profile ${params.gcProfile} \
     -ref_genome ${params.refGenome} \
     -ref_genome_version ${params.genomeVersion} \
@@ -108,9 +123,11 @@ process runPurple {
     """
 }
 
-
 workflow {
-    runAmber(tumor, tumorBam, loci, genomeVersion)
-    runCobalt(tumor, tumorBam, gcProfile)
-    runPurple(tumor, runAmber.out, runCobalt.out, gcProfile, refGenome, ensemblDataDir, circos)
+    tumor = Channel.fromPath(params.tumor)
+    tumorBam = Channel.fromPath(params.tumorBam)
+
+    runAmber(tumor, tumorBam)
+    runCobalt(tumor, tumorBam)
+    runPurple(tumor, runAmber.out, runCobalt.out)
 }
