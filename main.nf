@@ -106,12 +106,12 @@ process runPurple {
     path "${tumor}.purple.cnv.gene.tsv"
     path "${tumor}.purple.segment.tsv"
     path "${tumor}.purple.somatic.clonality.tsv"
-    path "plots/${tumor}.segment.png"
-    path "plots/${tumor}.copynumber.png"
-    path "plots/${tumor}.circos.png"
-    path "plots/${tumor}.map.png"
-    path "plots/${tumor}.input.png"
-    path "plots/${tumor}.purity.range.png"
+    path "plot/${tumor}.segment.png"
+    path "plot/${tumor}.copynumber.png"
+    path "plot/${tumor}.circos.png"
+    path "plot/${tumor}.map.png"
+    path "plot/${tumor}.input.png"
+    path "plot/${tumor}.purity.range.png"
 
     script:
     """
