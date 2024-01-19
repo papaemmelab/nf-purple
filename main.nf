@@ -1,13 +1,13 @@
-params.cores = 16
+params.cores = 4
 
 // Params Defaults in juno
 params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
-params.circos = "/opt/circos-0.69-2/bin/circos"
-params.loci = "ref/copy_number/GermlineHetPon.37.vcf.gz"
-params.gcProfile = "ref/copy_number/GC_profile.1000bp.37.cnp"
-params.ensemblDataDir = "ref/common/ensembl_data"
 params.genomeVersion = "V37"
-params.diploidRegions = "copy_number/DiploidRegions.37.bed.gz"
+params.circos = "/opt/circos-0.69-2/bin/circos"
+params.loci = "/data/copy_number/GermlineHetPon.37.vcf.gz"
+params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
+params.ensemblDataDir = "/data/common/ensembl_data"
+params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 
 
 log.info """\

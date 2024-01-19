@@ -38,8 +38,21 @@ More information on their [docs](https://github.com/hartwigmedical/hmftools/blob
 
 >[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/cobalt). **C**ount **ba**m **l**ines determines the read depth ratios of the supplied **t**umor and reference genomes.
 
+
 ## 🕵🏻‍♂️ Tests
 
 ```bash
 sh tests/run_test.sh
+```
+
+### Docker
+
+[Purple Docker image](https://hub.docker.com/r/papaemmelab/purple) was built for several platforms using [docker buildx](https://docs.docker.com/buildx/working-with-buildx/).
+
+```bash
+# Create a new builder instance
+docker buildx create --name papaemmelab-builder --use
+
+# Build the image
+docker buildx build --platform linux/amd64,linux/arm64 -t papaemmelab/purple:latest . --push
 ```

@@ -1,4 +1,4 @@
-name: nf-all-classifiers CI
+name: nf-purple CI
 
 on:
   push:
@@ -22,19 +22,11 @@ jobs:
           docker pull papaemmelab/purple:v0.1.0
       - name: Run test data
         run: |
-          # nf-test run tests/workflow.test
-          
           nextflow run main.nf -profile cloud \
             --tumor TEST \
             --tumorBam tests/data/tumor/tumor.bam \
             --refGenome tests/data/ref/genome.fasta \
-            --loci /data/copy_number/GermlineHetPon.37.vcf.gz \
-            --gcProfile /data/copy_number/GC_profile.1000bp.37.cnp \
-            --diploidRegions /data/copy_number/DiploidRegions.37.bed.gz \
-            --ensemblDataDir /data/common/common \
-            --genomeVersion V37 \
-            --outdir /app/results \
-            --cores 4
+            --outdir /app/results
       - name: Check result
         run: |
           if [ ! -f /app/results/TEST.purple.purity.tsv ]; then
