@@ -33,7 +33,8 @@ jobs:
             --diploidRegions /data/copy_number/DiploidRegions.37.bed.gz \
             --ensemblDataDir /data/common/common \
             --genomeVersion V37 \
-            --outdir /app/results
+            --outdir /app/results \
+            --cores 4
       - name: Check result
         run: |
           if [ ! -f /app/results/TEST.purple.purity.tsv ]; then
