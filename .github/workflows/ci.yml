@@ -17,10 +17,12 @@ jobs:
         run: |
           wget -qO- https://code.askimed.com/install/nf-test | bash
           sudo mv nf-test /usr/local/bin/
+      - name: Pull Docker image and cache
+        run: |
+          docker pull papaemmelab/purple:v0.1.0
       - name: Run test data
         run: |
           # nf-test run tests/workflow.test
-          mkdir -p /data/results
           
           nextflow run main.nf -profile cloud \
             --tumor TEST \
@@ -31,10 +33,10 @@ jobs:
             --diploidRegions /data/copy_number/DiploidRegions.37.bed.gz \
             --ensemblDataDir /data/common/common \
             --genomeVersion V37 \
-            --outdir /data/results
+            --outdir /app/results
       - name: Check result
         run: |
-          if [ ! -f /data/results/TEST.purple.purity.tsv ]; then
+          if [ ! -f /app/results/TEST.purple.purity.tsv ]; then
             echo "Result 'TEST.purple.purity.tsv' does not exist"
             exit 1
           fi
