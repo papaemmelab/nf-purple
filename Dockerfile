@@ -23,4 +23,4 @@ RUN \
 COPY . /app
 WORKDIR /app
 
-ENTRYPOINT ["bash"]
+ENTRYPOINT ["bash", "-c"]

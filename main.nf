@@ -46,7 +46,7 @@ process runAmber {
 
     script:
     """
-    hmftools amber \
+    amber \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
         -output_dir \$PWD \
@@ -73,7 +73,7 @@ process runCobalt {
 
     script:
     """
-    hmftools cobalt \
+    cobalt \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
         -output_dir \$PWD \
@@ -115,7 +115,7 @@ process runPurple {
 
     script:
     """
-    hmftools purple \
+    purple \
         -tumor ${tumor} \
         -amber ${params.outdir}/amber \
         -cobalt ${params.outdir}/cobalt \
