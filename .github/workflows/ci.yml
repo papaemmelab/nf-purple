@@ -11,19 +11,30 @@ jobs:
     runs-on: ubuntu-latest
     name: Job to run the test workflow
     steps:
-      - uses: actions/checkout@v1
-      - name: Install Nextflow
-        env:
-          CAPSULE_LOG: none
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
+      - uses: actions/checkout@v3
+      - uses: nf-core/setup-nextflow@v1
       - name: Install nf-test
         run: |
           wget -qO- https://code.askimed.com/install/nf-test | bash
           sudo mv nf-test /usr/local/bin/
       - name: Run test data
-        run:
-          sh tests/run_test.sh
-
+        run: |
+          # nf-test run tests/workflow.test
+          mkdir -p /data/results
+          
+          nextflow run main.nf -profile cloud \
+            --tumor TEST \
+            --tumorBam tests/data/tumor/tumor.bam \
+            --refGenome tests/data/ref/genome.fasta \
+            --loci /data/copy_number/GermlineHetPon.37.vcf.gz \
+            --gcProfile /data/copy_number/GC_profile.1000bp.37.cnp \
+            --diploidRegions /data/copy_number/DiploidRegions.37.bed.gz \
+            --ensemblDataDir /data/common/common \
+            --genomeVersion V37 \
+            --outdir /data/results
+      - name: Check result
+        run: |
+          if [ ! -f /data/results/TEST.purple.purity.tsv ]; then
+            echo "Result 'TEST.purple.purity.tsv' does not exist"
+            exit 1
+          fi

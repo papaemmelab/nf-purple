@@ -53,7 +53,7 @@ process runAmber {
         -threads ${params.cores} \
         -loci ${params.loci} \
         -ref_genome_version ${params.genomeVersion}
-    """
+    """.stripIndent()
 }
 
 process runCobalt {
@@ -80,7 +80,7 @@ process runCobalt {
         -threads ${params.cores} \
         -gc_profile ${params.gcProfile} \
         -tumor_only_diploid_bed ${params.diploidRegions}
-    """
+    """.stripIndent()
 }
 
 process runPurple {
@@ -116,16 +116,16 @@ process runPurple {
     script:
     """
     hmftools purple \
-    -tumor ${tumor} \
-    -amber ${params.outdir}/amber \
-    -cobalt ${params.outdir}/cobalt \
-    -output_dir \$PWD \
-    -gc_profile ${params.gcProfile} \
-    -ref_genome ${params.refGenome} \
-    -ref_genome_version ${params.genomeVersion} \
-    -ensembl_data_dir ${params.ensemblDataDir} \
-    -circos ${params.circos}
-    """
+        -tumor ${tumor} \
+        -amber ${params.outdir}/amber \
+        -cobalt ${params.outdir}/cobalt \
+        -output_dir \$PWD \
+        -gc_profile ${params.gcProfile} \
+        -ref_genome ${params.refGenome} \
+        -ref_genome_version ${params.genomeVersion} \
+        -ensembl_data_dir ${params.ensemblDataDir} \
+        -circos ${params.circos}
+    """.stripIndent()
 }
 
 workflow {

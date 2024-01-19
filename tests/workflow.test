@@ -1,0 +1,15 @@
+nextflow_pipeline {
+
+  name "Purple Run"
+  script "main.nf"
+
+  test("The pipeline propelry executes the 3 steps: Amber, Cobal, and Purple.") {
+
+    expect {
+      with(workflow){
+        assert success
+        assert trace.tasks().size() == 3
+      }
+    }
+  }
+}
