@@ -9,16 +9,16 @@ ENV PATH $PATH:/root/google-cloud-sdk/bin
 
 # Set version as an environment variable
 ENV GENOME_VERSION=37
-ENV HMFTOOLS_VERSION=5.28
-ENV HMFTOOLS_VERSION_UNDERSCORE 5_28
-ENV REF_DIR=hmf_pipeline_resources.${GENOME_VERSION}_v${HMFTOOLS_VERSION}
+ENV HMFTOOLS_VERSION=5.33
+ENV HMFTOOLS_VERSION_UNDERSCORE 5_33
+ENV REF_DIR=hmf_dna_pipeline_resources.${GENOME_VERSION}_v${HMFTOOLS_VERSION}
 
 # Download the file using gsutil
 RUN \
     mkdir -p /data && \
-    gsutil cp -r gs://hmf-public/HMFtools-Resources/dna_pipeline/v${HMFTOOLS_VERSION_UNDERSCORE}/${REF_DIR}.gz /data/ && \
-    tar -xzf /data/${REF_DIR}.gz -C /data && \
-    rm /data/${REF_DIR}.gz
+    gsutil cp gs://hmf-public/HMFtools-Resources/dna_pipeline/v${HMFTOOLS_VERSION_UNDERSCORE}/${GENOME_VERSION}/${REF_DIR}.tar.gz /data/ && \
+    tar -xzf /data/${REF_DIR}.tar.gz -C /data && \
+    rm /data/${REF_DIR}.tar.gz
 
 COPY . /app
 WORKDIR /app

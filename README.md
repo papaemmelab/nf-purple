@@ -38,7 +38,6 @@ More information on their [docs](https://github.com/hartwigmedical/hmftools/blob
 
 >[Cobalt](https://github.com/hartwigmedical/hmftools/tree/master/cobalt). **C**ount **ba**m **l**ines determines the read depth ratios of the supplied **t**umor and reference genomes.
 
-
 ## 🕵🏻‍♂️ Tests
 
 ```bash
