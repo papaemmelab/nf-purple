@@ -24,8 +24,8 @@ jobs:
         run: |
           nextflow run main.nf -profile cloud \
             --tumor TEST \
-            --tumorBam tests/data/tumor.bam \
-            --refGenome tests/data/reference.fasta \
+            --tumorBam `pwd`/tests/data/tumor.bam \
+            --refGenome `pwd`/tests/data/reference.fasta \
             --outdir /app/results
       - name: Check result
         run: |

@@ -53,5 +53,5 @@ sh tests/run_test.sh
 docker buildx create --name papaemmelab-builder --use
 
 # Build the image
-docker buildx build --platform linux/amd64,linux/arm64 -t papaemmelab/purple:latest . --push
+docker buildx build --platform linux/amd64,linux/arm64 -t papaemmelab/purple:v0.1.0 . --push
 ```
