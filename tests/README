@@ -1,0 +1,26 @@
+# Test data
+
+```bash
+# Build test BAM file
+SAMPLE_ID=IID_H208150_T01_01_WG01
+ORIGINAL_BAM=`isabl get-bams $SAMPLE_ID`
+TEST_BAM=test_sample.bam
+
+REGION1=1:100000-200000
+REGION2=2:300000-400000
+
+samtools view -b -o $TEST_BAM $ORIGINAL_BAM $REGION1 $REGION2
+samtools index $TEST_BAM
+
+# Build test Reference file
+ORIGINAL_REF=`isabl get-reference GRCh37`
+LOCAL_REF=reference.fasta
+TEST_REF=test_reference.fasta
+
+cp $ORIGINAL_REF $LOCAL_REF
+cp $ORIGINAL_REF.fai $LOCAL_REF.fai
+
+samtools faidx $LOCAL_REF $REGION1 >> $TEST_REF
+samtools faidx $LOCAL_REF $REGION2 >> $TEST_REF
+samtools faidx $TEST_REF
+```
