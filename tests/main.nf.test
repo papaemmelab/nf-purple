@@ -15,9 +15,9 @@ nextflow_pipeline {
         }
 
         then {
-            assert process.failed
-            assert process.exitStatus == 1
-            assert process.errorReport.contains("[ERROR]")
+            assert pipeline.failed
+            assert pipeline.exitStatus == 1
+            assert pipeline.errorReport.contains("[ERROR]")
         }
 
     }
