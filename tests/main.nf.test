@@ -4,7 +4,6 @@ nextflow_pipeline {
     script "main.nf"
 
     test("Should run Main.nf with failures on the purple step") {
-
         when {
             params {
                 tumor = "TEST"
@@ -13,13 +12,13 @@ nextflow_pipeline {
                 refGenome = "${projectDir}/tests/data/reference.fasta"
             }
         }
-
         then {
-            assert workflow.failed
-            assert workflow.exitStatus == 1
-            assert workflow.errorReport.contains("[ERROR]")
+            with(workflow) {
+                assert trace.tasks().size() == 3
+                assert failed
+                assert exitStatus == 1
+                assert errorReport.contains("[ERROR]")
+            }
         }
-
     }
-
 }
