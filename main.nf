@@ -92,6 +92,9 @@ process runPurple {
 
     input:
     val tumor
+    path reference
+    path reference_index
+    path reference_dict
     path amber_baf_tsv
     path amber_baf_pcf
     path amber_qc
@@ -121,7 +124,7 @@ process runPurple {
         -cobalt ${params.outdir}/cobalt \
         -output_dir \$PWD \
         -gc_profile ${params.gcProfile} \
-        -ref_genome ${params.refGenome} \
+        -ref_genome ${reference} \
         -ref_genome_version ${params.genomeVersion} \
         -ensembl_data_dir ${params.ensemblDataDir} \
         -circos ${params.circos}
@@ -131,8 +134,11 @@ process runPurple {
 workflow {
     tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
+    reference = Channel.fromPath(params.refGenome)
+    reference_index = Channel.fromPath(params.refGenome + ".fai")
+    reference_dict = Channel.fromPath(params.refGenome + ".dict")
 
     runAmber(tumor, tumorBam)
     runCobalt(tumor, tumorBam)
-    runPurple(tumor, runAmber.out, runCobalt.out)
+    runPurple(tumor, reference, reference_dict, reference_index, runAmber.out, runCobalt.out)
 }

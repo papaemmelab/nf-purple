@@ -14,11 +14,12 @@ nextflow_pipeline {
         }
         then {
             with(workflow) {
+                // Assert 2 tasks succeeded and 1 failed
                 assert failed
                 assert exitStatus == 1
                 assert trace.tasks().size() == 3
-                assert workflow.trace.succeeded().size() == 2
-                assert workflow.trace.failed().size() == 1
+                assert trace.succeeded().size() == 2
+                assert trace.failed().size() == 1
             }
         }
     }
