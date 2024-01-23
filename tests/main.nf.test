@@ -14,10 +14,11 @@ nextflow_pipeline {
         }
         then {
             with(workflow) {
-                assert trace.tasks().size() == 3
                 assert failed
                 assert exitStatus == 1
-                assert errorReport.contains("[ERROR]")
+                assert trace.tasks().size() == 3
+                assert workflow.trace.succeeded().size() == 2
+                assert workflow.trace.succeeded().size() == 1
             }
         }
     }
