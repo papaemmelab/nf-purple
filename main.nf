@@ -36,13 +36,13 @@ process runAmber {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path tumorBam
 
     output:
-    path "${tumor}.amber.baf.tsv.gz"
-    path "${tumor}.amber.baf.pcf"
-    path "${tumor}.amber.qc"
+    path "${tumor}.amber.baf.tsv.gz", emit: amber_baf_tsv
+    path "${tumor}.amber.baf.pcf", emit: amber_baf_pcf
+    path "${tumor}.amber.qc", emit: amber_qc
 
     script:
     """
@@ -64,12 +64,12 @@ process runCobalt {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path tumorBam
 
     output:
-    path "${tumor}.cobalt.ratio.tsv.gz"
-    path "${tumor}.cobalt.ratio.pcf"
+    path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
+    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
 
     script:
     """
@@ -91,7 +91,7 @@ process runPurple {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path amber_baf_tsv
     path amber_baf_pcf
     path amber_qc
@@ -99,19 +99,19 @@ process runPurple {
     path cobalt_ratio_pcf
 
     output:
-    path "${tumor}.purple.purity.tsv"
-    path "${tumor}.purple.qc"
-    path "${tumor}.purple.purity.range.tsv"
-    path "${tumor}.purple.cnv.somatic.tsv"
-    path "${tumor}.purple.cnv.gene.tsv"
-    path "${tumor}.purple.segment.tsv"
-    path "${tumor}.purple.somatic.clonality.tsv"
-    path "plot/${tumor}.segment.png"
-    path "plot/${tumor}.copynumber.png"
-    path "plot/${tumor}.circos.png"
-    path "plot/${tumor}.map.png"
-    path "plot/${tumor}.input.png"
-    path "plot/${tumor}.purity.range.png"
+    path "${tumor}.purple.purity.tsv", emit: purple_purity_tsv
+    path "${tumor}.purple.qc", emit: purple_qc
+    path "${tumor}.purple.purity.range.tsv", emit: purple_purity_range_tsv
+    path "${tumor}.purple.cnv.somatic.tsv", emit: purple_cnv_somatic_tsv
+    path "${tumor}.purple.cnv.gene.tsv", emit: purple_cnv_gene_tsv
+    path "${tumor}.purple.segment.tsv", emit: purple_segment_tsv
+    path "${tumor}.purple.somatic.clonality.tsv", emit: purple_somatic_clonality_tsv
+    path "plot/${tumor}.segment.png", emit: purple_segment_png
+    path "plot/${tumor}.copynumber.png", emit: purple_copynumber_png
+    path "plot/${tumor}.circos.png", emit: purple_circos_png
+    path "plot/${tumor}.map.png", emit: purple_map_png
+    path "plot/${tumor}.input.png", emit: purple_input_png
+    path "plot/${tumor}.purity.range.png", emit: purple_purity_range_png
 
     script:
     """
@@ -129,7 +129,7 @@ process runPurple {
 }
 
 workflow {
-    tumor = Channel.fromPath(params.tumor)
+    tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
 
     runAmber(tumor, tumorBam)

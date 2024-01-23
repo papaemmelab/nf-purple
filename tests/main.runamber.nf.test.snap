@@ -1,0 +1,27 @@
+{
+    "Should run Amber without failures": {
+        "content": [
+            {
+                "0": [
+                    "TEST.amber.baf.tsv.gz:md5,0c55ac207db6eb8e1f138a044990f4d1"
+                ],
+                "1": [
+                    "TEST.amber.baf.pcf:md5,c889d8a8b2668045d35eed1fd8e2c7ce"
+                ],
+                "2": [
+                    "TEST.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
+                ],
+                "amber_baf_pcf": [
+                    "TEST.amber.baf.pcf:md5,c889d8a8b2668045d35eed1fd8e2c7ce"
+                ],
+                "amber_baf_tsv": [
+                    "TEST.amber.baf.tsv.gz:md5,0c55ac207db6eb8e1f138a044990f4d1"
+                ],
+                "amber_qc": [
+                    "TEST.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
+                ]
+            }
+        ],
+        "timestamp": "2024-01-23T10:49:32.477756"
+    }
+}

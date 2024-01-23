@@ -20,16 +20,15 @@ jobs:
       - name: Pull Docker image and cache
         run: |
           docker pull papaemmelab/purple:v0.1.0
-      - name: Run test data
+      - name: Run nf-core lint
         run: |
-          nextflow run main.nf -profile cloud \
-            --tumor TEST \
-            --tumorBam `pwd`/tests/data/tumor.bam \
-            --refGenome `pwd`/tests/data/reference.fasta \
-            --outdir `pwd`/results
-      - name: Check result
+          nf-core lint .
+      - name: Run unit tests of each process for Amber, Cobalt, Purple
         run: |
-          if [ ! -f /app/results/TEST.purple.purity.tsv ]; then
-            echo "Result 'TEST.purple.purity.tsv' does not exist"
-            exit 1
-          fi
+          nf-test test tests/main.runamber.nf.test
+          nf-test test tests/main.runcobalt.nf.test
+          nf-test test tests/main.runpurple.nf.test
+      - name: Run pipeline end-to-end test
+        run: |
+          nf-test test tests/main.nf.test
+      

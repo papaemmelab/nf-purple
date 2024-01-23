@@ -1,0 +1,21 @@
+{
+    "Should run Cobalt without failures": {
+        "content": [
+            {
+                "0": [
+                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                ],
+                "1": [
+                    "TEST.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
+                ],
+                "cobalt_ratio_pcf": [
+                    "TEST.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
+                ],
+                "cobalt_ratio_tsv": [
+                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                ]
+            }
+        ],
+        "timestamp": "2024-01-23T10:50:58.292541"
+    }
+}
