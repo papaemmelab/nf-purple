@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test Process runAmber"
+    script "main.nf"
+    process "runAmber"
+
+    test("Should run Amber without failures") {
+
+        when {
+            params {
+                tumor = "TEST"
+                tumorBam = "${projectDir}/tests/data/tumor.bam"
+                outdir = "${projectDir}/tests/outdir"
+            }
+            process {
+                """
+                input[0] = Channel.value(params.tumor)
+                input[1] = Channel.fromPath(params.tumorBam)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+            assert process.trace.tasks().size() == 1
+            
+            // check expected files
+            with(process.out) {
+                assert amber_baf_pcf.size() == 1
+                assert amber_baf_tsv.size() == 1
+                assert amber_qc.size() == 1
+            }
+        }
+
+    }
+
+}

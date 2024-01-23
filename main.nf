@@ -1,13 +1,13 @@
-params.cores = 16
+params.cores = 4
 
 // Params Defaults in juno
 params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
-params.circos = "/opt/circos-0.69-2/bin/circos"
-params.loci = "ref/copy_number/GermlineHetPon.37.vcf.gz"
-params.gcProfile = "ref/copy_number/GC_profile.1000bp.37.cnp"
-params.ensemblDataDir = "ref/common/ensembl_data"
 params.genomeVersion = "V37"
-params.diploidRegions = "copy_number/DiploidRegions.37.bed.gz"
+params.circos = "/opt/circos-0.69-2/bin/circos"
+params.loci = "/data/copy_number/GermlineHetPon.37.vcf.gz"
+params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
+params.ensemblDataDir = "/data/common/ensembl_data"
+params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 
 
 log.info """\
@@ -36,24 +36,24 @@ process runAmber {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path tumorBam
 
     output:
-    path "${tumor}.amber.baf.tsv.gz"
-    path "${tumor}.amber.baf.pcf"
-    path "${tumor}.amber.qc"
+    path "${tumor}.amber.baf.tsv.gz", emit: amber_baf_tsv
+    path "${tumor}.amber.baf.pcf", emit: amber_baf_pcf
+    path "${tumor}.amber.qc", emit: amber_qc
 
     script:
     """
-    hmftools amber \
+    amber \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
         -output_dir \$PWD \
         -threads ${params.cores} \
         -loci ${params.loci} \
         -ref_genome_version ${params.genomeVersion}
-    """
+    """.stripIndent()
 }
 
 process runCobalt {
@@ -64,23 +64,23 @@ process runCobalt {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path tumorBam
 
     output:
-    path "${tumor}.cobalt.ratio.tsv.gz"
-    path "${tumor}.cobalt.ratio.pcf"
+    path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
+    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
 
     script:
     """
-    hmftools cobalt \
+    cobalt \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
         -output_dir \$PWD \
         -threads ${params.cores} \
         -gc_profile ${params.gcProfile} \
         -tumor_only_diploid_bed ${params.diploidRegions}
-    """
+    """.stripIndent()
 }
 
 process runPurple {
@@ -91,7 +91,7 @@ process runPurple {
     time '1h'
 
     input:
-    path tumor
+    val tumor
     path amber_baf_tsv
     path amber_baf_pcf
     path amber_qc
@@ -99,37 +99,37 @@ process runPurple {
     path cobalt_ratio_pcf
 
     output:
-    path "${tumor}.purple.purity.tsv"
-    path "${tumor}.purple.qc"
-    path "${tumor}.purple.purity.range.tsv"
-    path "${tumor}.purple.cnv.somatic.tsv"
-    path "${tumor}.purple.cnv.gene.tsv"
-    path "${tumor}.purple.segment.tsv"
-    path "${tumor}.purple.somatic.clonality.tsv"
-    path "plot/${tumor}.segment.png"
-    path "plot/${tumor}.copynumber.png"
-    path "plot/${tumor}.circos.png"
-    path "plot/${tumor}.map.png"
-    path "plot/${tumor}.input.png"
-    path "plot/${tumor}.purity.range.png"
+    path "${tumor}.purple.purity.tsv", emit: purple_purity_tsv
+    path "${tumor}.purple.qc", emit: purple_qc
+    path "${tumor}.purple.purity.range.tsv", emit: purple_purity_range_tsv
+    path "${tumor}.purple.cnv.somatic.tsv", emit: purple_cnv_somatic_tsv
+    path "${tumor}.purple.cnv.gene.tsv", emit: purple_cnv_gene_tsv
+    path "${tumor}.purple.segment.tsv", emit: purple_segment_tsv
+    path "${tumor}.purple.somatic.clonality.tsv", emit: purple_somatic_clonality_tsv
+    path "plot/${tumor}.segment.png", emit: purple_segment_png
+    path "plot/${tumor}.copynumber.png", emit: purple_copynumber_png
+    path "plot/${tumor}.circos.png", emit: purple_circos_png
+    path "plot/${tumor}.map.png", emit: purple_map_png
+    path "plot/${tumor}.input.png", emit: purple_input_png
+    path "plot/${tumor}.purity.range.png", emit: purple_purity_range_png
 
     script:
     """
-    hmftools purple \
-    -tumor ${tumor} \
-    -amber ${params.outdir}/amber \
-    -cobalt ${params.outdir}/cobalt \
-    -output_dir \$PWD \
-    -gc_profile ${params.gcProfile} \
-    -ref_genome ${params.refGenome} \
-    -ref_genome_version ${params.genomeVersion} \
-    -ensembl_data_dir ${params.ensemblDataDir} \
-    -circos ${params.circos}
-    """
+    purple \
+        -tumor ${tumor} \
+        -amber ${params.outdir}/amber \
+        -cobalt ${params.outdir}/cobalt \
+        -output_dir \$PWD \
+        -gc_profile ${params.gcProfile} \
+        -ref_genome ${params.refGenome} \
+        -ref_genome_version ${params.genomeVersion} \
+        -ensembl_data_dir ${params.ensemblDataDir} \
+        -circos ${params.circos}
+    """.stripIndent()
 }
 
 workflow {
-    tumor = Channel.fromPath(params.tumor)
+    tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
 
     runAmber(tumor, tumorBam)

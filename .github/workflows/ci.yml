@@ -1,4 +1,4 @@
-name: nf-all-classifiers CI
+name: nf-purple CI
 
 on:
   push:
@@ -11,19 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     name: Job to run the test workflow
     steps:
-      - uses: actions/checkout@v1
-      - name: Install Nextflow
-        env:
-          CAPSULE_LOG: none
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
+      - uses: actions/checkout@v3
+      - uses: nf-core/setup-nextflow@v1
       - name: Install nf-test
         run: |
           wget -qO- https://code.askimed.com/install/nf-test | bash
           sudo mv nf-test /usr/local/bin/
-      - name: Run test data
-        run:
-          sh tests/run_test.sh
-
+      - name: Pull Docker image and cache
+        run: |
+          docker pull papaemmelab/purple:v0.1.0
+      - name: Run unit tests of each process for Amber, Cobalt, Purple
+        run: |
+          nf-test test tests/main.runamber.nf.test
+          nf-test test tests/main.runcobalt.nf.test
+          nf-test test tests/main.runpurple.nf.test
+      - name: Run pipeline end-to-end test
+        run: |
+          nf-test test tests/main.nf.test
+      

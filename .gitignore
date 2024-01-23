@@ -5,6 +5,7 @@ capsule
 framework
 pipeline_*
 .nextflow*
+.nf-test*
 tmp
 
 # Tests

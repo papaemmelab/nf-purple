@@ -1,0 +1,87 @@
+{
+    "Should run Purple with failures": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "10": [
+                    
+                ],
+                "11": [
+                    
+                ],
+                "12": [
+                    
+                ],
+                "2": [
+                    
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    
+                ],
+                "7": [
+                    
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "purple_circos_png": [
+                    
+                ],
+                "purple_cnv_gene_tsv": [
+                    
+                ],
+                "purple_cnv_somatic_tsv": [
+                    
+                ],
+                "purple_copynumber_png": [
+                    
+                ],
+                "purple_input_png": [
+                    
+                ],
+                "purple_map_png": [
+                    
+                ],
+                "purple_purity_range_png": [
+                    
+                ],
+                "purple_purity_range_tsv": [
+                    
+                ],
+                "purple_purity_tsv": [
+                    
+                ],
+                "purple_qc": [
+                    
+                ],
+                "purple_segment_png": [
+                    
+                ],
+                "purple_segment_tsv": [
+                    
+                ],
+                "purple_somatic_clonality_tsv": [
+                    
+                ]
+            }
+        ],
+        "timestamp": "2024-01-23T11:18:57.811454"
+    }
+}

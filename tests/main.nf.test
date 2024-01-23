@@ -1,0 +1,25 @@
+nextflow_pipeline {
+
+    name "Test Workflow main.nf"
+    script "main.nf"
+
+    test("Should run Main.nf with failures on the purple step") {
+        when {
+            params {
+                tumor = "TEST"
+                tumorBam = "${projectDir}/tests/data/tumor.bam"
+                outdir = "${projectDir}/tests/outdir"
+                refGenome = "${projectDir}/tests/data/reference.fasta"
+            }
+        }
+        then {
+            with(workflow) {
+                assert failed
+                assert exitStatus == 1
+                assert trace.tasks().size() == 3
+                assert workflow.trace.succeeded().size() == 2
+                assert workflow.trace.failed().size() == 1
+            }
+        }
+    }
+}
