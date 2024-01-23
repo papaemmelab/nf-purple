@@ -17,6 +17,8 @@ log.info """\
     ----------------------------------------
     tumor      : ${params.tumor}
     tumorBam   : ${params.tumorBam}
+    normal      : ${params.normal}
+    normalBam   : ${params.normalBam}
     outdir     : ${params.outdir}
     cores      : ${params.cores}
     ========================================
@@ -38,17 +40,23 @@ process runAmber {
     input:
     val tumor
     path tumorBam
+    optional path normal
+    optional path normalBam
 
     output:
     path "${tumor}.amber.baf.tsv.gz", emit: amber_baf_tsv
     path "${tumor}.amber.baf.pcf", emit: amber_baf_pcf
     path "${tumor}.amber.qc", emit: amber_qc
+    optional path "${tumor}.amber.contamination.vcf.gz", emit: amber_contamination_vcf
+    optional path "${normal}.amber.snp.vcf.gz", emit: amber_normal_snp_vcf
+    optional path "${normal}.amber.homozygousregion.tsv", emit: amber_normal_homozygousregion_tsv
 
     script:
     """
     amber \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
+        ${normal ? "-reference " + normal + " \\\n-reference_bam " + normalBam : ""} \
         -output_dir \$PWD \
         -threads ${params.cores} \
         -loci ${params.loci} \
@@ -66,20 +74,23 @@ process runCobalt {
     input:
     val tumor
     path tumorBam
+    optional path normal
+    optional path normalBam
 
     output:
     path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
     path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
+    optional path "${reference}.cobalt.ratio.pcf", emit: cobalt_normal_ratio_pcf
 
     script:
     """
     cobalt \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
+        ${normal ? "-reference " + normal + " \\\n-reference_bam " + normalBam : "-tumor_only_diploid_bed * params.diploidRegions} \
         -output_dir \$PWD \
         -threads ${params.cores} \
-        -gc_profile ${params.gcProfile} \
-        -tumor_only_diploid_bed ${params.diploidRegions}
+        -gc_profile ${params.gcProfile}
     """.stripIndent()
 }
 
@@ -92,11 +103,17 @@ process runPurple {
 
     input:
     val tumor
+    optional path normal
     path amber_baf_tsv
     path amber_baf_pcf
     path amber_qc
+    optional path amber_contamination_vcf
+    optional path amber_normal_snp_vcf
     path cobalt_ratio_tsv
     path cobalt_ratio_pcf
+    optional path amber_normal_homozygousregion_tsv
+    optional path cobalt_normal_ratio_pcf
+
 
     output:
     path "${tumor}.purple.purity.tsv", emit: purple_purity_tsv
@@ -132,7 +149,19 @@ workflow {
     tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
 
-    runAmber(tumor, tumorBam)
-    runCobalt(tumor, tumorBam)
-    runPurple(tumor, runAmber.out, runCobalt.out)
+    normal = params.normal ? Channel.fromPath(params.normal) : Channel.empty()
+    normalBam = params.normal_bam ? Channel.fromPath(params.normal_bam) : Channel.empty()
+
+    runAmber(tumor, tumorBam, normal, normalBam)
+    runCobalt(tumor, tumorBam, normal, normalBam)
+    runPurple(tumor, normal, runAmber.out, runCobalt.out)
+}
+
+
+workflow.onComplete {
+    log.info (
+      workflow.success
+        ? "\nDone! Purple ran successfully. See the results in: ${params.outdir}\n"
+        : "\nOops .. something went wrong\n"
+    )
 }
