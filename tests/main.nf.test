@@ -18,7 +18,7 @@ nextflow_pipeline {
                 assert exitStatus == 1
                 assert trace.tasks().size() == 3
                 assert workflow.trace.succeeded().size() == 2
-                assert workflow.trace.succeeded().size() == 1
+                assert workflow.trace.failed().size() == 1
             }
         }
     }
