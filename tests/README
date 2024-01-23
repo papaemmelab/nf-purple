@@ -19,7 +19,7 @@ samtools view -b -o $TEST_NORMAL_BAM $ORIGINAL_NORMAL_BAM $REGION1 $REGION2
 samtools index $TEST_TUMOR_BAM
 samtools index $TEST_NORMAL_BAM
 
-# Build test Reference file
+# Build test Reference files
 ORIGINAL_REF=`isabl get-reference GRCh37`
 LOCAL_REF=gr37.fasta
 TEST_REF=reference.fasta
@@ -30,4 +30,6 @@ cp $ORIGINAL_REF.fai $LOCAL_REF.fai
 samtools faidx $LOCAL_REF $REGION1 >> $TEST_REF
 samtools faidx $LOCAL_REF $REGION2 >> $TEST_REF
 samtools faidx $TEST_REF
+samtools dict -a GRCh37 -s HUMAN $LOCAL_REF > $TEST_REF.dict
+bwa index $TEST_REF
 ```

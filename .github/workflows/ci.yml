@@ -26,7 +26,7 @@ jobs:
             --tumor TEST \
             --tumorBam `pwd`/tests/data/tumor.bam \
             --refGenome `pwd`/tests/data/reference.fasta \
-            --outdir /app/results
+            --outdir `pwd`/results
       - name: Check result
         run: |
           if [ ! -f /app/results/TEST.purple.purity.tsv ]; then
