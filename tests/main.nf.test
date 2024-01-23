@@ -6,8 +6,10 @@ nextflow_pipeline {
     test("Should run Main.nf with failures on the purple step") {
         when {
             params {
-                tumor = "TEST"
+                tumor = "TEST_TUMOR"
+                normal = "TEST_NORMAL"
                 tumorBam = "${projectDir}/tests/data/tumor.bam"
+                normalBam = "${projectDir}/tests/data/normal.bam"
                 outdir = "${projectDir}/tests/outdir"
                 refGenome = "${projectDir}/tests/data/reference.fasta"
             }

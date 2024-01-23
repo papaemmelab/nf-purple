@@ -12,6 +12,16 @@ You need Nextflow installed.
 ```bash
 module load java/jdk-11.0.11
 
+# To run matched pipeline
+nextflow papaemmelab/nf-purple \
+    --tumor $tumor \
+    --tumor_bam $TUMOR_BAM \
+    --normal $normal \
+    --normal_bam $NORMAL_BAM \
+    --outdir $OUTDIR \
+    ...refargs
+
+# To run unmatched tumor-only
 nextflow papaemmelab/nf-purple \
     --tumor $tumor \
     --tumor_bam $TUMOR_BAM \
