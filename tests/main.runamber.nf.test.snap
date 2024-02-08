@@ -3,25 +3,43 @@
         "content": [
             {
                 "0": [
-                    "TEST.amber.baf.tsv.gz:md5,0c55ac207db6eb8e1f138a044990f4d1"
+                    "TEST_TUMOR.amber.baf.tsv.gz:md5,582a86aee1eb90035f3a5d22cf6cdbd9"
                 ],
                 "1": [
-                    "TEST.amber.baf.pcf:md5,c889d8a8b2668045d35eed1fd8e2c7ce"
+                    "TEST_TUMOR.amber.baf.pcf:md5,c8d8a68055028ceea067b3c53d55aae4"
                 ],
                 "2": [
-                    "TEST.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
+                    "TEST_TUMOR.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
+                ],
+                "3": [
+                    "TEST_TUMOR.amber.contamination.vcf.gz:md5,941abd5cb8324ae2eabe82d9d0ebb6ee"
+                ],
+                "4": [
+                    "TEST_NORMAL.amber.snp.vcf.gz:md5,baa474a32f1fd4dd54989d490470924c"
+                ],
+                "5": [
+                    "TEST_NORMAL.amber.homozygousregion.tsv:md5,1d396d14d89860c41106934d2b5e16ac"
                 ],
                 "amber_baf_pcf": [
-                    "TEST.amber.baf.pcf:md5,c889d8a8b2668045d35eed1fd8e2c7ce"
+                    "TEST_TUMOR.amber.baf.pcf:md5,c8d8a68055028ceea067b3c53d55aae4"
                 ],
                 "amber_baf_tsv": [
-                    "TEST.amber.baf.tsv.gz:md5,0c55ac207db6eb8e1f138a044990f4d1"
+                    "TEST_TUMOR.amber.baf.tsv.gz:md5,582a86aee1eb90035f3a5d22cf6cdbd9"
+                ],
+                "amber_contamination_vcf": [
+                    "TEST_TUMOR.amber.contamination.vcf.gz:md5,941abd5cb8324ae2eabe82d9d0ebb6ee"
+                ],
+                "amber_normal_homozygousregion_tsv": [
+                    "TEST_NORMAL.amber.homozygousregion.tsv:md5,1d396d14d89860c41106934d2b5e16ac"
+                ],
+                "amber_normal_snp_vcf": [
+                    "TEST_NORMAL.amber.snp.vcf.gz:md5,baa474a32f1fd4dd54989d490470924c"
                 ],
                 "amber_qc": [
-                    "TEST.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
+                    "TEST_TUMOR.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
                 ]
             }
         ],
-        "timestamp": "2024-01-23T10:49:32.477756"
+        "timestamp": "2024-01-23T17:24:43.748894"
     }
 }

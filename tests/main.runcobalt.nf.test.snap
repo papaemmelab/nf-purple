@@ -3,19 +3,25 @@
         "content": [
             {
                 "0": [
-                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                    "TEST_TUMOR.cobalt.ratio.tsv.gz:md5,f235d46690097a000fdf7ac31bb53108"
                 ],
                 "1": [
-                    "TEST.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
+                    "TEST_TUMOR.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
+                ],
+                "2": [
+                    "TEST_NORMAL.cobalt.ratio.pcf:md5,4f035e0ee8e4290d64d24152ea5387b8"
+                ],
+                "cobalt_normal_ratio_pcf": [
+                    "TEST_NORMAL.cobalt.ratio.pcf:md5,4f035e0ee8e4290d64d24152ea5387b8"
                 ],
                 "cobalt_ratio_pcf": [
-                    "TEST.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
+                    "TEST_TUMOR.cobalt.ratio.pcf:md5,7fa4142d0d102e1f3b633d61d154d9c0"
                 ],
                 "cobalt_ratio_tsv": [
-                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                    "TEST_TUMOR.cobalt.ratio.tsv.gz:md5,f235d46690097a000fdf7ac31bb53108"
                 ]
             }
         ],
-        "timestamp": "2024-01-23T10:50:58.292541"
+        "timestamp": "2024-01-23T17:25:25.678659"
     }
 }
