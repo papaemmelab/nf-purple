@@ -32,7 +32,7 @@ process runAmber {
     tag "AMBER on ${params.tumor}"
     publishDir "${params.outdir}/amber", mode: 'copy'
     cpus params.cores
-    memory '4 GB'
+    memory '32 GB'
     time '1h'
 
     input:
@@ -60,7 +60,7 @@ process runCobalt {
     tag "COBALT on ${params.tumor}"
     publishDir "${params.outdir}/cobalt", mode: 'copy'
     cpus params.cores
-    memory '4 GB'
+    memory '32 GB'
     time '1h'
 
     input:
@@ -87,7 +87,7 @@ process runPurple {
     tag "PURPLE on ${params.tumor}"
     publishDir "${params.outdir}/purple", mode: 'copy'
     cpus params.cores
-    memory '4 GB'
+    memory '32 GB'
     time '1h'
 
     input:
