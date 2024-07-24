@@ -8,6 +8,8 @@ params.loci = "/data/copy_number/GermlineHetPon.37.vcf.gz"
 params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
 params.ensemblDataDir = "/data/common/ensembl_data"
 params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
+params.binProbes = 0
+params.binLogRMeans = 0
 
 
 log.info """\
@@ -70,6 +72,7 @@ process runCobalt {
     output:
     path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
     path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
+    path "${params.outdir}/cobalt", emit: cobalt_path
 
     script:
     """
@@ -81,6 +84,79 @@ process runCobalt {
         -gc_profile ${params.gcProfile} \
         -tumor_only_diploid_bed ${params.diploidRegions}
     """.stripIndent()
+}
+
+process binCobalt {
+    tag "COBALT BIN on ${params.tumor}"
+    publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogRMeans}_LogRMeans", mode: 'copy'
+    cpus params.cores
+    memory '32 GB'
+    time '1h'
+
+    input
+    val tumor
+    val binProbes
+    val binLogRMeans
+    path cobalt_ratio_pcf
+
+    output:
+    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_bin_ratio_pcf
+    path "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogRMeans}_LogRMeans", emit: cobalt_path
+
+    script:
+    """
+    #!/usr/bin/env python
+    import pandas as pd
+    import np
+
+    cobalt_ratio_pcf = pd.read_csv('${cobalt_ratio_pcf}', sep='\\t')
+    cobalt_ratio_pcf_probes = pd.DataFrame(columns=cobalt_ratio_pcf.columns)
+
+    # First bin by probes
+    chrom_arm = None
+    last_idx = None
+    for idx, seg in cobalt_pcf.iterrows():
+        if chrom_arm != '_'.join(seg[['chrom','arm']]):
+            chrom_arm = '_'.join(seg[['chrom','arm']])
+            cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.append(seg, ignore_index=True)
+            last_idx = cobalt_ratio_pcf_probes.index[-1]
+            continue
+        if (
+            cobalt_pcd_mod.loc[last_idx, 'n.probes'] <= ${binProbes}
+        ) or (
+            seg['n.probes'] <= ${binProbes}
+        ):
+            means = [cobalt_ratio_pcf_probes.loc[last_idx, 'mean']] * cobalt_ratio_pcf_probes.loc[last_idx, 'n.probes']
+            means.extend([seg['mean']] * seg['n.probes'])
+            cobalt_ratio_pcf_probes.loc[last_idx, 'mean'] = np.mean(means)
+            cobalt_ratio_pcf_probes.loc[last_idx, 'n.probes'] += seg['n.probes']
+            cobalt_ratio_pcf_probes.loc[last_idx, 'end.pos'] = seg['end.pos']
+        else:
+            cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.append(seg, ignore_index=True)
+            last_idx = cobalt_ratio_pcf_probes.index[-1]
+
+    # Then bin by logR mean
+    cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.reset_index().drop(columns="index")
+    cobalt_ratio_pcf_probes_logR = pd.DataFrame(columns=cobalt_ratio_pcf_probes.columns)
+    chrom_arm = None
+    for idx, seg in cobalt_ratio_pcf_probes.iterrows():
+        if chrom_arm != '_'.join(seg[['chrom','arm']]):
+            chrom_arm = '_'.join(seg[['chrom','arm']])
+            cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
+            last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
+            continue
+        if abs(cobalt_ratio_pcf_probes.loc[last_idx, 'mean'] - seg['mean']) <= ${binLogRMeans}:
+            means = [cobalt_ratio_pcf_probes_logR.loc[last_idx, 'mean']] * cobalt_ratio_pcf_probes_logR.loc[last_idx, 'n.probes']
+            means.extend([seg['mean']] * seg['n.probes'])
+            cobalt_ratio_pcf_probes_logR.loc[last_idx, 'mean'] = np.mean(means)
+            cobalt_ratio_pcf_probes_logR.loc[last_idx, 'n.probes'] += seg['n.probes']
+            cobalt_ratio_pcf_probes_logR.loc[last_idx, 'end.pos'] = seg['end.pos']
+        else:
+            cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
+            last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
+
+    cobalt_ratio_pcf_probes_logR.to_csv("${tumor}.cobalt.ratio.pcf", sep='\\t', index=False)
+    """
 }
 
 process runPurple {
@@ -97,6 +173,7 @@ process runPurple {
     path amber_qc
     path cobalt_ratio_tsv
     path cobalt_ratio_pcf
+    path cobalt_path
 
     output:
     path "${tumor}.purple.purity.tsv", emit: purple_purity_tsv
@@ -118,7 +195,7 @@ process runPurple {
     purple \
         -tumor ${tumor} \
         -amber ${params.outdir}/amber \
-        -cobalt ${params.outdir}/cobalt \
+        -cobalt ${cobalt_path} \
         -output_dir \$PWD \
         -gc_profile ${params.gcProfile} \
         -ref_genome ${params.refGenome} \
@@ -131,8 +208,15 @@ process runPurple {
 workflow {
     tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
+    binProbes = Channel.value(params.binProbes)
+    binLogRMeans = Channel.value(params.binLogRMeans)
 
     runAmber(tumor, tumorBam)
     runCobalt(tumor, tumorBam)
-    runPurple(tumor, runAmber.out, runCobalt.out)
+    if (binProbes != 0 || binLogRMeans != 0) {
+        binCobalt(tumor, binProbes, binLogRMeans, runCobalt.out)
+        runPurple(tumor, runAmber.out, binCobalt.out)
+    } else {
+        runPurple(tumor, runAmber.out, runCobalt.out)
+    }
 }
