@@ -9,7 +9,7 @@ params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
 params.ensemblDataDir = "/data/common/ensembl_data"
 params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 params.binProbes = 0
-params.binLogRMeans = 0
+params.binLogR = 0
 
 
 log.info """\
@@ -17,10 +17,12 @@ log.info """\
     ========================================
     Params:
     ----------------------------------------
-    tumor      : ${params.tumor}
-    tumorBam   : ${params.tumorBam}
-    outdir     : ${params.outdir}
-    cores      : ${params.cores}
+    tumor        : ${params.tumor}
+    tumorBam     : ${params.tumorBam}
+    outdir       : ${params.outdir}
+    cores        : ${params.cores}
+    binProbes    : ${params.binProbes}
+    binLogR : ${params.binLogR}
     ========================================
     Workflow:
     ----------------------------------------
@@ -88,7 +90,7 @@ process runCobalt {
 
 process binCobalt {
     tag "COBALT BIN on ${params.tumor}"
-    publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogRMeans}_LogRMeans", mode: 'copy'
+    publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", mode: 'copy'
     cpus params.cores
     memory '32 GB'
     time '1h'
@@ -96,12 +98,12 @@ process binCobalt {
     input
     val tumor
     val binProbes
-    val binLogRMeans
+    val binLogR
     path cobalt_ratio_pcf
 
     output:
     path "${tumor}.cobalt.ratio.pcf", emit: cobalt_bin_ratio_pcf
-    path "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogRMeans}_LogRMeans", emit: cobalt_path
+    path "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", emit: cobalt_path
 
     script:
     """
@@ -145,7 +147,7 @@ process binCobalt {
             cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
             continue
-        if abs(cobalt_ratio_pcf_probes.loc[last_idx, 'mean'] - seg['mean']) <= ${binLogRMeans}:
+        if abs(cobalt_ratio_pcf_probes.loc[last_idx, 'mean'] - seg['mean']) <= ${binLogR}:
             means = [cobalt_ratio_pcf_probes_logR.loc[last_idx, 'mean']] * cobalt_ratio_pcf_probes_logR.loc[last_idx, 'n.probes']
             means.extend([seg['mean']] * seg['n.probes'])
             cobalt_ratio_pcf_probes_logR.loc[last_idx, 'mean'] = np.mean(means)
@@ -209,12 +211,12 @@ workflow {
     tumor = Channel.value(params.tumor)
     tumorBam = Channel.fromPath(params.tumorBam)
     binProbes = Channel.value(params.binProbes)
-    binLogRMeans = Channel.value(params.binLogRMeans)
+    binLogR = Channel.value(params.binLogR)
 
     runAmber(tumor, tumorBam)
     runCobalt(tumor, tumorBam)
-    if (binProbes != 0 || binLogRMeans != 0) {
-        binCobalt(tumor, binProbes, binLogRMeans, runCobalt.out)
+    if (binProbes != 0 || binLogR != 0) {
+        binCobalt(tumor, binProbes, binLogR, runCobalt.out)
         runPurple(tumor, runAmber.out, binCobalt.out)
     } else {
         runPurple(tumor, runAmber.out, runCobalt.out)
