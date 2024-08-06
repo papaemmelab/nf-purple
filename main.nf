@@ -1,4 +1,5 @@
 params.cores = 4
+params.memory = '32 GB'
 
 // Params Defaults in juno
 params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
@@ -23,6 +24,7 @@ log.info """\
     tumorBam     : ${params.tumorBam}
     outdir       : ${params.outdir}
     cores        : ${params.cores}
+    memory       : ${params.memory}
     binProbes    : ${params.binProbes}
     binLogR      : ${params.binLogR}
     minPurity    : ${params.minPurity}
@@ -40,7 +42,7 @@ process runAmber {
     tag "AMBER on ${params.tumor}"
     publishDir "${params.outdir}/amber", mode: 'copy'
     cpus params.cores
-    memory '32 GB'
+    memory params.memory
     time '1h'
 
     input:
@@ -77,7 +79,7 @@ process runCobalt {
     tag "COBALT on ${params.tumor}"
     publishDir "${params.outdir}/cobalt", mode: 'copy'
     cpus params.cores
-    memory '32 GB'
+    memory params.memory
     time '1h'
 
     input:
@@ -111,7 +113,7 @@ process binCobalt {
     tag "COBALT BIN on ${params.tumor}"
     publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", mode: 'copy'
     cpus params.cores
-    memory '32 GB'
+    memory params.memory
     time '1h'
 
     input:
@@ -185,7 +187,7 @@ process runPurple {
     tag "PURPLE on ${params.tumor}"
     publishDir "${params.outdir}/purple/purple_${params.minPurity}_${params.maxPurity}", mode: 'copy'
     cpus params.cores
-    memory '32 GB'
+    memory params.memory
     time '1h'
 
     input:
