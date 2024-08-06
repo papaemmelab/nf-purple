@@ -10,6 +10,8 @@ params.ensemblDataDir = "/data/common/ensembl_data"
 params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 params.binProbes = 0
 params.binLogR = 0
+params.minPurity = 0.08
+params.maxPurity = 1.0
 
 
 log.info """\
@@ -22,7 +24,9 @@ log.info """\
     outdir       : ${params.outdir}
     cores        : ${params.cores}
     binProbes    : ${params.binProbes}
-    binLogR : ${params.binLogR}
+    binLogR      : ${params.binLogR}
+    minPurity    : ${params.minPurity}
+    maxPurity    : ${params.maxPurity}
     ========================================
     Workflow:
     ----------------------------------------
@@ -50,13 +54,22 @@ process runAmber {
 
     script:
     """
-    amber \
-        -tumor ${tumor} \
-        -tumor_bam ${tumorBam} \
-        -output_dir \$PWD \
-        -threads ${params.cores} \
-        -loci ${params.loci} \
-        -ref_genome_version ${params.genomeVersion}
+    if [ -f "${params.outdir}/amber/${tumor}.amber.baf.tsv.gz" ] && \
+       [ -f "${params.outdir}/amber/${tumor}.amber.baf.pcf" ] && \
+       [ -f "${params.outdir}/amber/${tumor}.amber.qc" ]; then
+        echo "Output files already exist. Skipping amber execution."
+        ln -s ${params.outdir}/amber/${tumor}.amber.baf.tsv.gz ${tumor}.amber.baf.tsv.gz
+        ln -s ${params.outdir}/amber/${tumor}.amber.baf.pcf ${tumor}.amber.baf.pcf
+        ln -s ${params.outdir}/amber/${tumor}.amber.qc ${tumor}.amber.qc
+    else
+        amber \
+            -tumor ${tumor} \
+            -tumor_bam ${tumorBam} \
+            -output_dir \$PWD \
+            -threads ${params.cores} \
+            -loci ${params.loci} \
+            -ref_genome_version ${params.genomeVersion}
+    fi
     """.stripIndent()
 }
 
@@ -74,17 +87,23 @@ process runCobalt {
     output:
     path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
     path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
-    path "${params.outdir}/cobalt", emit: cobalt_path
 
     script:
     """
-    cobalt \
+    if [ -f "${params.outdir}/cobalt/${tumor}.cobalt.ratio.tsv.gz" ] && \
+       [ -f "${params.outdir}/cobalt/${tumor}.cobalt.ratio.pcf" ]; then
+        echo "Output files already exist. Skipping cobalt execution."
+        ln -s ${params.outdir}/cobalt/${tumor}.cobalt.ratio.tsv.gz ${tumor}.cobalt.ratio.tsv.gz
+        ln -s ${params.outdir}/cobalt/${tumor}.cobalt.ratio.pcf ${tumor}.cobalt.ratio.pcf
+    else
+        cobalt \
         -tumor ${tumor} \
         -tumor_bam ${tumorBam} \
         -output_dir \$PWD \
         -threads ${params.cores} \
         -gc_profile ${params.gcProfile} \
         -tumor_only_diploid_bed ${params.diploidRegions}
+    fi
     """.stripIndent()
 }
 
@@ -95,36 +114,37 @@ process binCobalt {
     memory '32 GB'
     time '1h'
 
-    input
+    input:
     val tumor
     val binProbes
     val binLogR
     path cobalt_ratio_pcf
+    path cobalt_ratio_tsv
 
     output:
-    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_bin_ratio_pcf
-    path "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", emit: cobalt_path
+    path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_ratio_tsv
+    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_ratio_pcf
 
     script:
     """
     #!/usr/bin/env python
     import pandas as pd
-    import np
-
+    import numpy as np
+ 
     cobalt_ratio_pcf = pd.read_csv('${cobalt_ratio_pcf}', sep='\\t')
     cobalt_ratio_pcf_probes = pd.DataFrame(columns=cobalt_ratio_pcf.columns)
 
     # First bin by probes
     chrom_arm = None
     last_idx = None
-    for idx, seg in cobalt_pcf.iterrows():
+    for idx, seg in cobalt_ratio_pcf.iterrows():
         if chrom_arm != '_'.join(seg[['chrom','arm']]):
             chrom_arm = '_'.join(seg[['chrom','arm']])
             cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.append(seg, ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes.index[-1]
             continue
         if (
-            cobalt_pcd_mod.loc[last_idx, 'n.probes'] <= ${binProbes}
+            cobalt_ratio_pcf_probes.loc[last_idx, 'n.probes'] <= ${binProbes}
         ) or (
             seg['n.probes'] <= ${binProbes}
         ):
@@ -156,14 +176,14 @@ process binCobalt {
         else:
             cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
-
+ 
     cobalt_ratio_pcf_probes_logR.to_csv("${tumor}.cobalt.ratio.pcf", sep='\\t', index=False)
     """
 }
 
 process runPurple {
     tag "PURPLE on ${params.tumor}"
-    publishDir "${params.outdir}/purple", mode: 'copy'
+    publishDir "${params.outdir}/purple/purple_${params.minPurity}_${params.maxPurity}", mode: 'copy'
     cpus params.cores
     memory '32 GB'
     time '1h'
@@ -203,7 +223,9 @@ process runPurple {
         -ref_genome ${params.refGenome} \
         -ref_genome_version ${params.genomeVersion} \
         -ensembl_data_dir ${params.ensemblDataDir} \
-        -circos ${params.circos}
+        -circos ${params.circos} \
+        -min_purity ${params.minPurity} \
+        -max_purity ${params.maxPurity}
     """.stripIndent()
 }
 
@@ -213,12 +235,14 @@ workflow {
     binProbes = Channel.value(params.binProbes)
     binLogR = Channel.value(params.binLogR)
 
-    runAmber(tumor, tumorBam)
-    runCobalt(tumor, tumorBam)
+    amberOutput = runAmber(tumor, tumorBam)
+    cobaltOutput = runCobalt(tumor, tumorBam)
+
     if (binProbes != 0 || binLogR != 0) {
-        binCobalt(tumor, binProbes, binLogR, runCobalt.out)
-        runPurple(tumor, runAmber.out, binCobalt.out)
+        binCobaltOutput = binCobalt(tumor, binProbes, binLogR, cobaltOutput.cobalt_ratio_pcf, cobaltOutput.cobalt_ratio_tsv)
+        runPurple(tumor, amberOutput, binCobaltOutput, "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR")
     } else {
-        runPurple(tumor, runAmber.out, runCobalt.out)
+        runPurple(tumor, amberOutput, cobaltOutput, "${params.outdir}/cobalt")
     }
 }
+
