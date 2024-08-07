@@ -11,8 +11,8 @@ nextflow_process {
                 tumor = "TEST"
                 binProbes = 100
                 binLogR = 0.5
-                cobalt_ratio_pcf = "${projectDir}/tests/outdir/cobalt/TEST.cobalt.ratio.pcf"
-                cobalt_ratio_tsv = "${projectDir}/tests/outdir/cobalt/TEST.cobalt.ratio.tsv.gz"
+                cobalt_ratio_pcf = "${projectDir}/tests/data/TEST.cobalt.ratio.pcf"
+                cobalt_ratio_tsv = "${projectDir}/tests/data/TEST.cobalt.ratio.tsv.gz"
             }
             process {
                 """
