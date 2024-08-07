@@ -1,5 +1,5 @@
 params.cores = 4
-params.memory = '32 GB'
+params.memory = '4 GB'
 
 // Params Defaults in juno
 params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
@@ -228,6 +228,8 @@ process runPurple {
         -circos ${params.circos} \
         -min_purity ${params.minPurity} \
         -max_purity ${params.maxPurity}
+
+    rsync -a --no-links \$PWD/ ${params.outdir}/purple/
     """.stripIndent()
 }
 
