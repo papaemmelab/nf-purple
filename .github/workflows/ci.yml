@@ -24,6 +24,7 @@ jobs:
         run: |
           nf-test test tests/main.runamber.nf.test
           nf-test test tests/main.runcobalt.nf.test
+          nf-test test tests/main.bincobalt.nf.test
           nf-test test tests/main.runpurple.nf.test
       - name: Run pipeline end-to-end test
         run: |
