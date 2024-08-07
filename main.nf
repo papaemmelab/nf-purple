@@ -1,4 +1,4 @@
-params.cores = 4
+params.cores = 1 
 params.memory = '4 GB'
 
 // Params Defaults in juno
@@ -140,9 +140,9 @@ process binCobalt {
     chrom_arm = None
     last_idx = None
     for idx, seg in cobalt_ratio_pcf.iterrows():
-        if chrom_arm != '_'.join(seg[['chrom','arm']]):
-            chrom_arm = '_'.join(seg[['chrom','arm']])
-            cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.append(seg, ignore_index=True)
+        if chrom_arm != '_'.join(seg[['chrom','arm']].astype(str)):
+            chrom_arm = '_'.join(seg[['chrom','arm']].astype(str))
+            cobalt_ratio_pcf_probes = pd.concat([cobalt_ratio_pcf_probes, seg.to_frame().T], ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes.index[-1]
             continue
         if (
@@ -156,7 +156,7 @@ process binCobalt {
             cobalt_ratio_pcf_probes.loc[last_idx, 'n.probes'] += seg['n.probes']
             cobalt_ratio_pcf_probes.loc[last_idx, 'end.pos'] = seg['end.pos']
         else:
-            cobalt_ratio_pcf_probes = cobalt_ratio_pcf_probes.append(seg, ignore_index=True)
+            cobalt_ratio_pcf_probes = pd.concat([cobalt_ratio_pcf_probes, seg.to_frame().T], ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes.index[-1]
 
     # Then bin by logR mean
@@ -164,9 +164,9 @@ process binCobalt {
     cobalt_ratio_pcf_probes_logR = pd.DataFrame(columns=cobalt_ratio_pcf_probes.columns)
     chrom_arm = None
     for idx, seg in cobalt_ratio_pcf_probes.iterrows():
-        if chrom_arm != '_'.join(seg[['chrom','arm']]):
-            chrom_arm = '_'.join(seg[['chrom','arm']])
-            cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
+        if chrom_arm != '_'.join(seg[['chrom','arm']].astype(str)):
+            chrom_arm = '_'.join(seg[['chrom','arm']].astype(str))
+            cobalt_ratio_pcf_probes_logR = pd.concat([cobalt_ratio_pcf_probes_logR, seg.to_frame().T], ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
             continue
         if abs(cobalt_ratio_pcf_probes.loc[last_idx, 'mean'] - seg['mean']) <= ${binLogR}:
@@ -176,7 +176,7 @@ process binCobalt {
             cobalt_ratio_pcf_probes_logR.loc[last_idx, 'n.probes'] += seg['n.probes']
             cobalt_ratio_pcf_probes_logR.loc[last_idx, 'end.pos'] = seg['end.pos']
         else:
-            cobalt_ratio_pcf_probes_logR = cobalt_ratio_pcf_probes_logR.append(seg, ignore_index=True)
+            cobalt_ratio_pcf_probes_logR = pd.concat([cobalt_ratio_pcf_probes_logR, seg.to_frame().T], ignore_index=True)
             last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
  
     cobalt_ratio_pcf_probes_logR.to_csv("${tumor}.cobalt.ratio.pcf", sep='\\t', index=False)
