@@ -180,7 +180,7 @@ process binCobalt {
             last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
  
     cobalt_ratio_pcf_probes_logR.to_csv("${tumor}.cobalt.ratio.pcf", sep='\\t', index=False)
-    """
+    """.stripIndent()
 }
 
 process runPurple {
