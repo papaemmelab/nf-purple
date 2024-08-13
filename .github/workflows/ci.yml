@@ -19,11 +19,12 @@ jobs:
           sudo mv nf-test /usr/local/bin/
       - name: Pull Docker image and cache
         run: |
-          docker pull papaemmelab/purple:v0.1.0
+          docker pull papaemmelab/purple:v0.1.1
       - name: Run unit tests of each process for Amber, Cobalt, Purple
         run: |
           nf-test test tests/main.runamber.nf.test
           nf-test test tests/main.runcobalt.nf.test
+          nf-test test tests/main.bincobalt.nf.test
           nf-test test tests/main.runpurple.nf.test
       - name: Run pipeline end-to-end test
         run: |
