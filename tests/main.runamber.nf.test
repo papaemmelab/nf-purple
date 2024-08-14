@@ -8,14 +8,18 @@ nextflow_process {
 
         when {
             params {
-                tumor = "TEST"
+                tumor = "TEST_TUMOR"
+                normal = "TEST_NORMAL"
                 tumorBam = "${projectDir}/tests/data/tumor.bam"
+                normalBam = "${projectDir}/tests/data/normal.bam"
                 outdir = "${projectDir}/tests/outdir"
             }
             process {
                 """
                 input[0] = Channel.value(params.tumor)
-                input[1] = Channel.fromPath(params.tumorBam)
+                input[1] = Channel.value(params.normal)
+                input[2] = Channel.fromPath(params.tumorBam)
+                input[3] = Channel.fromPath(params.normalBam)
                 """
             }
         }
