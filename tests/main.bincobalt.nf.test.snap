@@ -1,0 +1,25 @@
+{
+    "Should bin Cobalt without failures": {
+        "content": [
+            {
+                "0": [
+                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                ],
+                "1": [
+                    "TEST.cobalt.ratio.pcf:md5,cd95f6b56cecfd80461bf1bd13c7a9fd"
+                ],
+                "cobalt_ratio_pcf": [
+                    "TEST.cobalt.ratio.pcf:md5,cd95f6b56cecfd80461bf1bd13c7a9fd"
+                ],
+                "cobalt_ratio_tsv": [
+                    "TEST.cobalt.ratio.tsv.gz:md5,87cf8451b04e4373fc4dd7ccda3e6afe"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.0",
+            "nextflow": "24.04.4"
+        },
+        "timestamp": "2024-08-07T11:15:21.745138"
+    }
+}

@@ -1,7 +1,15 @@
 FROM papaemmelab/docker-hmftools:v1.0.0
 
+# Clean up to free space
+RUN apt-get clean
+
 # Install dependencies
-RUN apt-get update && apt-get install -y tar curl python3
+RUN apt-get update && apt-get install -y \
+    tar \
+    curl \
+    python3 \
+    python3-pip \
+    python3-venv
 
 # Install Google Cloud SDK
 RUN curl -sSL https://sdk.cloud.google.com | bash
@@ -19,6 +27,10 @@ RUN \
     gsutil cp gs://hmf-public/HMFtools-Resources/dna_pipeline/v${HMFTOOLS_VERSION_UNDERSCORE}/${GENOME_VERSION}/${REF_DIR}.tar.gz /data/ && \
     tar -xzf /data/${REF_DIR}.tar.gz -C /data && \
     rm /data/${REF_DIR}.tar.gz
+
+# Link python3 to python and install packages
+RUN ln -s /usr/bin/python3 /usr/bin/python && \
+    pip install --no-cache-dir numpy pandas
 
 COPY . /app
 WORKDIR /app

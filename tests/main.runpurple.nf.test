@@ -44,6 +44,7 @@ nextflow_process {
                 input[1] = Channel.value(params.normal)
                 input[2] = runAmber.out
                 input[3] = runCobalt.out
+                input[4] = "${params.outdir}/cobalt"
                 """
             }
         }

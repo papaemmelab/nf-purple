@@ -54,6 +54,11 @@ More information on their [docs](https://github.com/hartwigmedical/hmftools/blob
 sh tests/run_test.sh
 ```
 
+To check tests and update snapshots run:
+```bash
+nf-test test --update-snapshot
+```
+
 ### Docker
 
 [Purple Docker image](https://hub.docker.com/r/papaemmelab/purple) was built for several platforms using [docker buildx](https://docs.docker.com/buildx/working-with-buildx/).
