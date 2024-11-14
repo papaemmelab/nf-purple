@@ -28,6 +28,8 @@ nextflow run \
     --tumorBam ${TUMOR_BAM} \
     --normal ${NORMAL} \
     --normalBam ${NORMAL_BAM} \
+    --somaticVcf $SOMATIC_VCF \
+    --germlineVcf $GERMLINE_VCF \
     --outdir ${OUTDIR} \
     --loci ${LOCI} \
     --gcProfile ${GCPROFILE} \
@@ -38,8 +40,6 @@ nextflow run \
     --circos ${CIRCOS} \
     --cores 8 \
     --memory '64G' \
-    --somaticVcf $SOMATIC_VCF \
-    --germlineVcf $GERMLINE_VCF \
     --binProbes 100 \
     --binLogR 0.5 \
     -resume

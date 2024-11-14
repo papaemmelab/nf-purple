@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import argparse
+import shutil
 import pandas as pd
 import numpy as np
-import argparse
 
 parser = argparse.ArgumentParser(
     description=(
@@ -15,12 +16,6 @@ parser.add_argument(
     type=str,
     required=True,
     help="Path to the input cobalt ratio .pcf file.",
-)
-parser.add_argument(
-    "--out_pcf",
-    type=str,
-    required=True,
-    help="Path to ouput the binned cobalt ratios.",
 )
 parser.add_argument(
     "--bin_probes", 
@@ -96,4 +91,6 @@ for idx, seg in cobalt_ratio_pcf_probes.iterrows():
         )
         last_idx = cobalt_ratio_pcf_probes_logR.index[-1]
 
-cobalt_ratio_pcf_probes_logR.to_csv(args.out_pcf, sep="\t", index=False)
+# store input with another name to replace original
+shutil.move(args.in_pcf, args.in_pcf.replace(".pcf", ".original.pcf"))
+cobalt_ratio_pcf_probes_logR.to_csv(args.in_pcf, sep="\t", index=False)

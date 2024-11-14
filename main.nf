@@ -3,7 +3,7 @@ params.memory = '4 GB'
 
 // Params Defaults in juno
 params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
-params.genomeVersion = "V37"
+params.genomeVersion = "37"
 params.circos = "/opt/circos-0.69-2/bin/circos"
 params.loci = "/data/copy_number/GermlineHetPon.37.vcf.gz"
 params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
@@ -50,6 +50,7 @@ logMessage += """\
 
 log.info(logMessage.stripIndent())
 
+// See https://github.com/hartwigmedical/hmftools/tree/master/amber
 process runAmber {
     tag "AMBER on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
     publishDir "${params.outdir}/amber", mode: 'copy'
@@ -68,8 +69,6 @@ process runAmber {
     path "${tumor}.amber.baf.pcf", emit: amber_baf_pcf
     path "${tumor}.amber.qc", emit: amber_qc
     path "${tumor}.amber.contamination.vcf.gz", emit: amber_contamination_vcf
-    path "${normal}.amber.snp.vcf.gz", emit: amber_normal_snp_vcf, optional: true
-    path "${normal}.amber.homozygousregion.tsv", emit: amber_normal_homozygousregion_tsv, optional: true
 
     script:
     def reference_args = normal ? """-reference ${normal} \\\n    -reference_bam ${normalBam}"""  : ""
@@ -91,11 +90,12 @@ process runAmber {
             -output_dir \$PWD \\
             -threads ${params.cores} \\
             -loci ${params.loci} \\
-            -ref_genome_version ${params.genomeVersion}
+            -ref_genome_version V${params.genomeVersion}
     fi
     """.stripIndent()
 }
 
+// See https://github.com/hartwigmedical/hmftools/tree/master/cobalt#mandatory-arguments
 process runCobalt {
     tag "COBALT on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
     publishDir "${params.outdir}/cobalt", mode: 'copy'
@@ -110,14 +110,17 @@ process runCobalt {
     path normalBam
 
     output:
+    path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_tumor_ratio_tsv
     path "${tumor}.cobalt.ratio.pcf", emit: cobalt_tumor_ratio_pcf
     path "${normal}.cobalt.ratio.pcf", emit: cobalt_normal_ratio_pcf, optional: true
 
     script:
-    def reference_args = normal ? "-reference ${normal} \\\n    -reference_bam ${normalBam}"  : "-tumor_only_diploid_bed ${params.diploidRegions}"
+    def reference_args = normal ? "\t\t\t-reference ${normal} \\\n    -reference_bam ${normalBam}"  : "\t\t\t-tumor_only_diploid_bed ${params.diploidRegions}"
     """
-    if [ -f "${params.outdir}/cobalt/${tumor}.cobalt.ratio.pcf" ]; then
+    if [ -f "${params.outdir}/cobalt/${tumor}.cobalt.ratio.tsv.gz" ] && \
+       [ -f "${params.outdir}/cobalt/${tumor}.cobalt.ratio.pcf" ]; then
         echo "Output files already exist. Skipping cobalt execution."
+        ln -s ${params.outdir}/cobalt/${tumor}.cobalt.ratio.tsv.gz ${tumor}.cobalt.ratio.tsv.gz
         ln -s ${params.outdir}/cobalt/${tumor}.cobalt.ratio.pcf ${tumor}.cobalt.ratio.pcf
 
         if [ -f "${params.outdir}/cobalt/${normal}.cobalt.ratio.pcf" ]; then
@@ -136,7 +139,7 @@ process runCobalt {
 }
 
 process binCobalt {
-    tag "COBALT BIN on ${params.tumor}"
+    tag "COBALT BIN on ${params.tumor}" + (params.normal ? " and ${params.normal}" : "")
     publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", mode: 'copy'
     cpus 1
     memory '4G'
@@ -147,19 +150,20 @@ process binCobalt {
     val normal
     val binProbes
     val binLogR
+    path cobalt_tumor_ratio_tsv
     path cobalt_tumor_ratio_pcf
     path cobalt_normal_ratio_pcf
 
     output:
-    path "${tumor}.cobalt.ratio.binned.pcf", emit: cobalt_tumor_ratio_pcf
-    path "${normal}.cobalt.ratio.binned.pcf", emit: cobalt_normal_ratio_pcf
+    path "${tumor}.cobalt.ratio.tsv.gz", emit: cobalt_tumor_ratio_tsv
+    path "${tumor}.cobalt.ratio.pcf", emit: cobalt_tumor_ratio_pcf
+    path "${normal}.cobalt.ratio.pcf", emit: cobalt_normal_ratio_pcf
 
     script:
     """
     # Bin Cobalt Tumor Probes
     bin_cobalt.py \\
         --in_pcf ${cobalt_tumor_ratio_pcf} \\
-        --out_pcf ${tumor}.cobalt.ratio.binned.pcf \\
         --bin_probes ${binProbes} \\
         --bin_log_r ${binLogR}
 
@@ -167,13 +171,13 @@ process binCobalt {
     if [ -f "${cobalt_normal_ratio_pcf}" ]; then
         bin_cobalt.py \\
             --in_pcf ${cobalt_normal_ratio_pcf} \\
-            --out_pcf ${normal}.cobalt.ratio.binned.pcf \\
             --bin_probes ${binProbes} \\
             --bin_log_r ${binLogR}
     fi
     """.stripIndent()
 }
 
+// See https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md#arguments
 process runPurple {
     tag "PURPLE on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
     publishDir "${params.outdir}/purple/purple_${params.minPurity}_${params.maxPurity}", mode: 'copy'
@@ -190,8 +194,7 @@ process runPurple {
     path amber_baf_pcf
     path amber_qc
     path amber_contamination_vcf
-    path amber_normal_snp_vcf
-    path amber_normal_homozygousregion_tsv
+    path cobalt_tumor_ratio_tsv
     path cobalt_tumor_ratio_pcf
     path cobalt_normal_ratio_pcf
     path cobalt_path
@@ -214,7 +217,7 @@ process runPurple {
     script:
     def reference_args = normal ? "-reference ${normal}" : ""
     def somatic_vcf_args = somatic_vcf ? "-somatic_vcf ${somatic_vcf}" : ""
-    def germline_vcf_args = germline ? "-germline_vcf ${germline_vcf}" : ""
+    def germline_vcf_args = germline_vcf ? "-germline_vcf ${germline_vcf}" : ""
     """
     purple \\
         -tumor ${tumor} \\
@@ -253,10 +256,10 @@ workflow {
 
     // Bin Cobalt if expected
     postCobaltOutput = (binProbes != 0 || binLogR != 0)
-        ? binCobalt(tumor, normal, binProbes, binLogR, cobaltOutput.cobalt_tumor_ratio_pcf, cobaltOutput.cobalt_normal_ratio_pcf)
+        ? binCobalt(tumor, normal, binProbes, binLogR, cobaltOutput.cobalt_tumor_ratio_tsv, cobaltOutput.cobalt_tumor_ratio_pcf, cobaltOutput.cobalt_normal_ratio_pcf)
         : cobaltOutput
 
-    cobaltPath = (binProbes != 0 || binLogR != 0)
+    cobaltOutdir = (binProbes != 0 || binLogR != 0)
         ? "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR"
         : "${params.outdir}/cobalt"
 
@@ -266,9 +269,14 @@ workflow {
         normal,
         somaticVcf,
         germlineVcf,
-        amberOutput,
-        postCobaltOutput,
-        cobaltPath,
+        amberOutput.amber_baf_tsv,
+        amberOutput.amber_baf_pcf,
+        amberOutput.amber_qc,
+        amberOutput.amber_contamination_vcf,
+        postCobaltOutput.cobalt_tumor_ratio_tsv,
+        postCobaltOutput.cobalt_tumor_ratio_pcf,
+        postCobaltOutput.cobalt_normal_ratio_pcf,
+        cobaltOutdir,
     )
 }
 
