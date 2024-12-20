@@ -275,11 +275,11 @@ workflow {
     sageOutput = runSage(tumorBam, normalBam)
 
     // Bin Cobalt if expected
-    postCobaltOutput = (params.binProbes != 0 || params.binLogR != 0)
+    postCobaltOutput = (params.normalBam) && (params.binProbes != 0 || params.binLogR != 0)
         ? binCobalt(cobaltOutput.cobalt_tumor_ratio_tsv, cobaltOutput.cobalt_tumor_ratio_pcf, cobaltOutput.cobalt_normal_ratio_pcf)
         : cobaltOutput
 
-    cobaltOutdir = (params.binProbes != 0 || params.binLogR != 0)
+    cobaltOutdir = (params.normalBam) && (params.binProbes != 0 || params.binLogR != 0)
         ? "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR"
         : "${params.outdir}/cobalt"
 
