@@ -1,8 +1,7 @@
 params.cores = 1 
 params.memory = '4 GB'
 
-// Params Defaults in juno
-params.refGenome = "/work/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta"
+// Params Defaults
 params.genomeVersion = 37
 params.circos = "/opt/circos-0.69-2/bin/circos"
 params.loci = "/data/copy_number/GermlineHetPon.37.vcf.gz"
@@ -20,31 +19,32 @@ params.maxPurity = 1.0
 def logMessage = """\
     HMFTOOLS - PURPLE
     ========================================
-    Running Mode: ${params.normal ? 'Matched' : 'Unmatched'}
+    Running Mode   : ${params.normal ? 'Matched' : 'Unmatched'}
     ----------------------------------------
     Params:
     ----------------------------------------
-    tumor        : ${params.tumor}
-    tumorBam     : ${params.tumorBam}
+    tumor          : ${params.tumor}
+    tumorBam       : ${params.tumorBam}
 """
 logMessage += (params.normal && params.normalBam) ? """\
-    normal       : ${params.normal}
-    normalBam    : ${params.normalBam}
+    normal         : ${params.normal}
+    normalBam      : ${params.normalBam}
 """ : ""
 logMessage += """\
-    somaticVcf   : ${params.somaticVcf}
-    outdir       : ${params.outdir}
-    cores        : ${params.cores}
-    memory       : ${params.memory}
-    binProbes    : ${params.binProbes}
-    binLogR      : ${params.binLogR}
-    minPurity    : ${params.minPurity}
-    maxPurity    : ${params.maxPurity}
+    somaticVcf     : ${params.somaticVcf}
+    outdir         : ${params.outdir}
+    cores          : ${params.cores}
+    memory         : ${params.memory}
+    binProbes      : ${params.binProbes}
+    binLogR        : ${params.binLogR}
+    minPurity      : ${params.minPurity}
+    maxPurity      : ${params.maxPurity}
+    ensemblDataDir : ${params.ensemblDataDir}
     ========================================
     Workflow:
     ----------------------------------------
-    Project    : ${workflow.projectDir}
-    Cmd line   : ${workflow.commandLine}
+    Project        : ${workflow.projectDir}
+    Cmd line       : ${workflow.commandLine}
 """
 
 log.info(logMessage.stripIndent())
@@ -68,10 +68,9 @@ process runAmber {
     path "${params.tumor}.amber.contamination.vcf.gz", emit: amber_contamination_vcf
 
     script:
-    def reference_args = params.normal ? """
+    def reference_args = params.normal ? """\\
             -reference ${params.normal} \\
-            -reference_bam ${normalBam} \\
-    """  : ""
+            -reference_bam ${normalBam} """  : ""
 
     """
     if [ -f "${params.outdir}/amber/${params.tumor}.amber.baf.tsv.gz" ] && \\
@@ -86,8 +85,7 @@ process runAmber {
     else
         amber \\
             -tumor ${params.tumor} \\
-            -tumor_bam ${tumorBam} \\
-            ${reference_args} \\
+            -tumor_bam ${tumorBam} ${reference_args} \\
             -output_dir \$PWD \\
             -threads ${params.cores} \\
             -loci ${params.loci} \\
@@ -114,9 +112,9 @@ process runCobalt {
     path "${params.normal}.cobalt.ratio.pcf", emit: cobalt_normal_ratio_pcf, optional: true
 
     script:
-    def reference_args = params.normal ? """
+    def reference_args = params.normal ? """\\
             -reference ${params.normal} \\
-            -reference_bam ${normalBam}""" : """
+            -reference_bam ${normalBam}""" : """\\
             -tumor_only_diploid_bed ${params.diploidRegions}"""
 
     """
@@ -132,8 +130,7 @@ process runCobalt {
     else
         cobalt \\
             -tumor ${params.tumor} \\
-            -tumor_bam ${tumorBam} \\
-            ${reference_args} \\
+            -tumor_bam ${tumorBam} ${reference_args} \\
             -output_dir \$PWD \\
             -threads ${params.cores} \\
             -gc_profile ${params.gcProfile}
@@ -242,16 +239,17 @@ process runPurple {
     path "plot/${params.tumor}.purity.range.png", emit: purple_purity_range_png
 
     script:
-    def reference_args = params.normal ? """-reference ${params.normal}""" : ""
-    def somatic_vcf_args = params.normal && sage_vcf ? """-somatic_vcf ${sage_vcf}""" : ""
+    def reference_args = params.normal ? """\\
+        -reference ${params.normal}""" : ""
+    def somatic_vcf_args = params.normal && sage_vcf ? """\\
+        -somatic_vcf ${sage_vcf}""" : ""
 
     """
     purple \\
-        -tumor ${params.tumor} \\
-        ${reference_args} \\
+        -tumor ${params.tumor} ${reference_args} \\
         -amber ${params.outdir}/amber \\
         -cobalt ${cobalt_path} \\
-        -output_dir \$PWD \\
+        -output_dir \$PWD ${somatic_vcf_args} \\
         -gc_profile ${params.gcProfile} \\
         -ref_genome ${params.refGenome} \\
         -ref_genome_version ${params.genomeVersion} \\

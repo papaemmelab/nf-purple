@@ -21,7 +21,7 @@ ENSEMBLDATADIR=${REFDIR}/common/ensembl_data
 CIRCOS=/opt/circos-0.69-2/bin/circos
 
 nextflow run \
-    -profile hpc_slurm \
+    -profile slurm \
     ${NF_PURPLE} \
     --tumor ${TUMOR} \
     --tumorBam ${TUMOR_BAM} \

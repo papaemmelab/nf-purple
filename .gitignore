@@ -1,5 +1,6 @@
 # Nextflow run files
 nextflow
+nf-test
 work
 capsule
 framework
@@ -10,6 +11,7 @@ tmp
 
 # Tests
 tests/outdir/*
+tests/data/ref/ensembl_data_original
 outdir
 plugins
 slurm*.out

@@ -7,19 +7,10 @@ nextflow_process {
     test("Should run Amber without failures") {
 
         when {
-            params {
-                tumor = "TEST_TUMOR"
-                normal = "TEST_NORMAL"
-                tumorBam = "${projectDir}/tests/data/tumor.bam"
-                normalBam = "${projectDir}/tests/data/normal.bam"
-                outdir = "${projectDir}/tests/outdir"
-            }
             process {
                 """
-                input[0] = Channel.value(params.tumor)
-                input[1] = Channel.value(params.normal)
-                input[2] = Channel.fromPath(params.tumorBam)
-                input[3] = Channel.fromPath(params.normalBam)
+                input[0] = Channel.fromPath(params.tumorBam)
+                input[1] = Channel.fromPath(params.normalBam)
                 """
             }
         }
@@ -33,6 +24,7 @@ nextflow_process {
             with(process.out) {
                 assert amber_baf_pcf.size() == 1
                 assert amber_baf_tsv.size() == 1
+                assert amber_contamination_vcf.size() == 1
                 assert amber_qc.size() == 1
             }
         }

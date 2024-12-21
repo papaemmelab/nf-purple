@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test Process runSage"
+    script "main.nf"
+    process "runSage"
+
+    test("Should run Sage with failure reading bam") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.fromPath(params.tumorBam)
+                input[1] = Channel.fromPath(params.normalBam)
+                """
+            }
+        }
+
+        then {
+            // until better test data is added, expect a known error
+            assert process.failed
+            assert process.exitStatus == 1
+            assert process.errorReport.contains("[ERROR] cannot find sequence index for chromosome 1:100000-200000 in bam header")
+            
+            // assert process.success
+            // assert snapshot(process.out).match()
+            // assert process.trace.tasks().size() == 1
+
+            // // check expected files
+            // with(process.out) {
+            //     assert sage_vcf.size() == 1
+            // }
+        }
+    }
+
+}

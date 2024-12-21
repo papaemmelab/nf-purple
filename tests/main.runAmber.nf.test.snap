@@ -14,12 +14,6 @@
                 "3": [
                     "TEST_TUMOR.amber.contamination.vcf.gz:md5,941abd5cb8324ae2eabe82d9d0ebb6ee"
                 ],
-                "4": [
-                    "TEST_NORMAL.amber.snp.vcf.gz:md5,baa474a32f1fd4dd54989d490470924c"
-                ],
-                "5": [
-                    "TEST_NORMAL.amber.homozygousregion.tsv:md5,1d396d14d89860c41106934d2b5e16ac"
-                ],
                 "amber_baf_pcf": [
                     "TEST_TUMOR.amber.baf.pcf:md5,c8d8a68055028ceea067b3c53d55aae4"
                 ],
@@ -29,17 +23,15 @@
                 "amber_contamination_vcf": [
                     "TEST_TUMOR.amber.contamination.vcf.gz:md5,941abd5cb8324ae2eabe82d9d0ebb6ee"
                 ],
-                "amber_normal_homozygousregion_tsv": [
-                    "TEST_NORMAL.amber.homozygousregion.tsv:md5,1d396d14d89860c41106934d2b5e16ac"
-                ],
-                "amber_normal_snp_vcf": [
-                    "TEST_NORMAL.amber.snp.vcf.gz:md5,baa474a32f1fd4dd54989d490470924c"
-                ],
                 "amber_qc": [
                     "TEST_TUMOR.amber.qc:md5,9547e68ba672e08d6bd49e1e6f654ee8"
                 ]
             }
         ],
-        "timestamp": "2024-01-23T17:24:43.748894"
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.3"
+        },
+        "timestamp": "2024-12-20T19:50:26.411257553"
     }
 }

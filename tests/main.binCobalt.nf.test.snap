@@ -1,0 +1,31 @@
+{
+    "Should bin Cobalt without failures": {
+        "content": [
+            {
+                "0": [
+                    "TEST_TUMOR.cobalt.ratio.tsv.gz:md5,f235d46690097a000fdf7ac31bb53108"
+                ],
+                "1": [
+                    "TEST_TUMOR.cobalt.ratio.pcf:md5,d4b0aa911e08a551e123bef8816d1256"
+                ],
+                "2": [
+                    "TEST_NORMAL.cobalt.ratio.pcf:md5,b488cbdc3b5d17e5ab1e5712f405bb90"
+                ],
+                "cobalt_normal_ratio_pcf": [
+                    "TEST_NORMAL.cobalt.ratio.pcf:md5,b488cbdc3b5d17e5ab1e5712f405bb90"
+                ],
+                "cobalt_tumor_ratio_pcf": [
+                    "TEST_TUMOR.cobalt.ratio.pcf:md5,d4b0aa911e08a551e123bef8816d1256"
+                ],
+                "cobalt_tumor_ratio_tsv": [
+                    "TEST_TUMOR.cobalt.ratio.tsv.gz:md5,f235d46690097a000fdf7ac31bb53108"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.3"
+        },
+        "timestamp": "2024-12-20T19:50:22.208765876"
+    }
+}

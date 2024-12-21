@@ -3,24 +3,18 @@ nextflow_pipeline {
     name "Test Workflow main.nf"
     script "main.nf"
 
-    test("Should run Main.nf with failures on the purple step") {
-        when {
-            params {
-                tumor = "TEST_TUMOR"
-                normal = "TEST_NORMAL"
-                tumorBam = "${projectDir}/tests/data/tumor.bam"
-                normalBam = "${projectDir}/tests/data/normal.bam"
-                outdir = "${projectDir}/tests/outdir"
-                refGenome = "${projectDir}/tests/data/reference.fasta"
-            }
-        }
+    test("Should run Main.nf with failures on sage.") {
         then {
             with(workflow) {
+                // Sage and Purple dont work in tests.
                 assert failed
                 assert exitStatus == 1
                 assert trace.tasks().size() == 4
                 assert workflow.trace.succeeded().size() == 3
                 assert workflow.trace.failed().size() == 1
+
+                // See assertions examples nf-core: https://nf-co.re/docs/contributing/nf-test/assertions
+                assert workflow.stdout.any{ it.contains("[ERROR] cannot find sequence index for chromosome 1:100000-200000 in bam header") }
             }
         }
     }

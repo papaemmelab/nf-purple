@@ -1,0 +1,3 @@
+sampleID	chrom	arm	start.pos	end.pos	n.probes	mean
+S1	2	p	14001	397001	340	-7.2411
+S1	17	p	1	1	1	-9.965784284662089
