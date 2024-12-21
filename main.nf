@@ -10,6 +10,7 @@ params.ensemblDataDir = "/data/common/ensembl_data"
 params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 params.normal = null
 params.normalBam = null
+params.somaticVcf = null
 params.binProbes = 0
 params.binLogR = 0
 params.minPurity = 0.08
@@ -27,8 +28,8 @@ def logMessage = """\
     tumorBam       : ${params.tumorBam}
 """
 logMessage += (params.normal && params.normalBam) ? """\
-    normal         : ${params.normal}
-    normalBam      : ${params.normalBam}
+    normal        : ${params.normal}
+    normalBam     : ${params.normalBam}
 """ : ""
 logMessage += """\
     somaticVcf     : ${params.somaticVcf}
