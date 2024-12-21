@@ -4,6 +4,12 @@ nextflow_pipeline {
     script "main.nf"
 
     test("Should run Main.nf with failures on sage.") {
+
+        when {
+            params {
+                sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
+            }
+        }
         then {
             with(workflow) {
                 // Sage and Purple dont work in tests.

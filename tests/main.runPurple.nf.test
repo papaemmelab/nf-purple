@@ -37,22 +37,6 @@ nextflow_process {
             assert process.exitStatus == 1
             assert process.errorReport.contains("[ERROR]")
             assert process.errorReport.contains("com.hartwig.hmftools.purple.segment.PurpleSegmentFactory.create(PurpleSegmentFactory.java:96")
-
-            // assert process.success
-            // assert snapshot(process.out).match()
-            // assert process.trace.tasks().size() == 1
-            
-            // // check expected files
-            // with(process.out) {
-            //     assert purple_segment_png.size() == 1
-            //     assert purple_copynumber_png.size() == 1
-            //     assert purple_circos_png.size() == 1
-            //     assert purple_map_png.size() == 1
-            //     assert purple_input_png.size() == 1
-            //     assert purple_purity_range_png.size() == 1
-            // }
         }
-
     }
-
 }

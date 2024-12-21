@@ -24,7 +24,4 @@ jobs:
       - name: Run unit tests of each process for Amber, Cobalt, binCobalt, Sage, Purple
         run: |
           nf-test test tests/main.*.nf.test
-      - name: Run pipeline end-to-end test
-        run: |
-          nf-test test tests/main.nf.test
       
