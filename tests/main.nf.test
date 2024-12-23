@@ -4,21 +4,51 @@ nextflow_pipeline {
     script "main.nf"
     autoSort false
 
-    test("Should run Main.nf with failures on sage.") {
+    // test("Should run Main.nf in matched setting. [Error expected in Sage]") {
+    //     when {
+    //         params {
+    //             tumor = "TEST_TUMOR"
+    //             normal = "TEST_NORMAL"
+    //             tumorBam = "${projectDir}/tests/data/input/tumor.bam"
+    //             normalBam = "${projectDir}/tests/data/input/normal.bam"
+    //             ensemblDataDir = "${projectDir}/tests/data/ref/ensembl_data"
+    //             sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
+    //         }
+    //     }
+    //     then {
+    //         with(workflow) {
+    //             assert failed
+    //             assert exitStatus == 1
+    //             assert trace.tasks().size() == 3 // Amber, Cobalt, Sage
+    //             assert trace.succeeded().size() == 2 // Amber, Cobalt
+    //             assert trace.failed().size() == 1 // Sage
+    //             assert stdout.any{ 
+    //                 it.contains('Cannot invoke "java.util.List.stream()" because "geneDataList" is null') 
+    //             }
+    //         }
+    //     }
+    // }
 
+    test("Should run Main.nf in unmatched setting. [Error expected in Purple]") {
         when {
             params {
+                tumor = "TEST_TUMOR"
+                normal = null
+                tumorBam = "${projectDir}/tests/data/input/tumor.bam"
+                normalBam = "${projectDir}/assets/NO_FILE"
                 ensemblDataDir = "${projectDir}/tests/data/ref/ensembl_data"
             }
         }
         then {
             with(workflow) {
-                // Tests are expected to fail at Sage and Purple. Best we can do
+                println "Workflow status: ${status}"
+                println "Workflow trace: ${trace}"
+
                 assert failed
                 assert exitStatus == 1
-                assert trace.tasks().size() == 4
-                assert workflow.trace.succeeded().size() == 2 // Amber, Cobalt
-                assert workflow.trace.failed().size() == 2 // Sage, Purple
+                assert trace.tasks().size() == 4 // Amber, Cobalt, binCobalt, Purple
+                assert workflow.trace.succeeded().size() == 3 // Amber, Cobalt, binCobalt
+                assert workflow.trace.failed().size() == 1 // Purple
                 assert workflow.stdout.any{ 
                     it.contains('Cannot invoke "java.util.List.stream()" because "geneDataList" is null') 
                 }

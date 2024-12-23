@@ -13,12 +13,15 @@ OUTDIR=/data1/papaemme/isabl/home/svc_papaemme_bot/tmp/purple_matched
 REFGENOME=/data1/papaemme/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta
 GENOMEVERSION=37
 
-REFDIR=/data1/papaemme/isabl/ref/homo_sapiens/37/hmftools/v6_0/ref/37
+REFDIR=/data1/papaemme/isabl/ref/homo_sapiens/37/hmftools/v5_33
 LOCI=${REFDIR}/copy_number/GermlineHetPon.37.vcf.gz
 GCPROFILE=${REFDIR}/copy_number/GC_profile.1000bp.37.cnp
 DIPLOIDREGIONS=${REFDIR}/copy_number/DiploidRegions.37.bed.gz
 ENSEMBLDATADIR=${REFDIR}/common/ensembl_data
 CIRCOS=/opt/circos-0.69-2/bin/circos
+
+mkdir -p ${OUTDIR}
+cd ${OUTDIR}
 
 nextflow run \
     -profile slurm \

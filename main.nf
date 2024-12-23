@@ -9,12 +9,16 @@ params.gcProfile = "/data/copy_number/GC_profile.1000bp.37.cnp"
 params.ensemblDataDir = "/data/common/ensembl_data"
 params.diploidRegions = "/data/copy_number/DiploidRegions.37.bed.gz"
 params.normal = null
-params.normalBam = null
-params.somaticVcf = null
+params.normalBam = "assets/NO_FILE"
 params.binProbes = 0
 params.binLogR = 0
 params.minPurity = 0.08
 params.maxPurity = 1.0
+
+// https://nextflow-io.github.io/patterns/optional-input
+def NO_FILE = file("${projectDir}/assets/NO_FILE")
+params.normal = null
+params.normalBam = NO_FILE
 
 
 def logMessage = """\
@@ -32,7 +36,6 @@ logMessage += (params.normal && params.normalBam) ? """\
     normalBam     : ${params.normalBam}
 """ : ""
 logMessage += """\
-    somaticVcf     : ${params.somaticVcf}
     outdir         : ${params.outdir}
     cores          : ${params.cores}
     memory         : ${params.memory}
@@ -53,7 +56,7 @@ log.info(logMessage.stripIndent())
 // See https://github.com/hartwigmedical/hmftools/tree/master/amber
 process runAmber {
     tag "AMBER on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
-    publishDir "${params.outdir}/amber", mode: 'copy'
+    publishDir "${params.outdir}/amber", mode: 'copy', overwrite: false, cache: true
     cpus params.cores
     memory params.memory
     time '1h'
@@ -66,7 +69,7 @@ process runAmber {
     path "${params.tumor}.amber.baf.tsv.gz", emit: amber_baf_tsv
     path "${params.tumor}.amber.baf.pcf", emit: amber_baf_pcf
     path "${params.tumor}.amber.qc", emit: amber_qc
-    path "${params.tumor}.amber.contamination.vcf.gz", emit: amber_contamination_vcf
+    path "${params.tumor}.amber.contamination.vcf.gz", emit: amber_contamination_vcf, optional: true
 
     script:
     def reference_args = params.normal ? """\\
@@ -74,31 +77,20 @@ process runAmber {
             -reference_bam ${normalBam} """  : ""
 
     """
-    if [ -f "${params.outdir}/amber/${params.tumor}.amber.baf.tsv.gz" ] && \\
-       [ -f "${params.outdir}/amber/${params.tumor}.amber.baf.pcf" ] && \\
-       [ -f "${params.outdir}/amber/${params.tumor}.amber.qc" ]  && \\
-       [ -f "${params.outdir}/amber/${params.tumor}.amber.contamination.vcf.gz" ]; then
-        echo "Output files already exist. Skipping amber execution."
-        ln -fs ${params.outdir}/amber/${params.tumor}.amber.baf.tsv.gz ${params.tumor}.amber.baf.tsv.gz
-        ln -fs ${params.outdir}/amber/${params.tumor}.amber.baf.pcf ${params.tumor}.amber.baf.pcf
-        ln -fs ${params.outdir}/amber/${params.tumor}.amber.qc ${params.tumor}.amber.qc
-        ln -fs ${params.outdir}/amber/${params.tumor}.amber.contamination.vcf.gz ${params.tumor}.amber.contamination.vcf.gz
-    else
-        amber \\
-            -tumor ${params.tumor} \\
-            -tumor_bam ${tumorBam} ${reference_args} \\
-            -output_dir \$PWD \\
-            -threads ${params.cores} \\
-            -loci ${params.loci} \\
-            -ref_genome_version V${params.genomeVersion}
-    fi
+    amber \\
+        -tumor ${params.tumor} \\
+        -tumor_bam ${tumorBam} ${reference_args} \\
+        -output_dir \$PWD \\
+        -threads ${params.cores} \\
+        -loci ${params.loci} \\
+        -ref_genome_version V${params.genomeVersion}
     """.stripIndent()
 }
 
 // See https://github.com/hartwigmedical/hmftools/tree/master/cobalt#mandatory-arguments
 process runCobalt {
     tag "COBALT on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
-    publishDir "${params.outdir}/cobalt", mode: 'copy'
+    publishDir "${params.outdir}/cobalt", mode: 'copy', overwrite: false,  cache: true
     cpus params.cores
     memory params.memory
     time '1h'
@@ -119,27 +111,17 @@ process runCobalt {
             -tumor_only_diploid_bed ${params.diploidRegions}"""
 
     """
-    if [ -f "${params.outdir}/cobalt/${params.tumor}.cobalt.ratio.tsv.gz" ] && \
-       [ -f "${params.outdir}/cobalt/${params.tumor}.cobalt.ratio.pcf" ]; then
-        echo "Output files already exist. Skipping cobalt execution."
-        ln -s ${params.outdir}/cobalt/${params.tumor}.cobalt.ratio.tsv.gz ${params.tumor}.cobalt.ratio.tsv.gz
-        ln -s ${params.outdir}/cobalt/${params.tumor}.cobalt.ratio.pcf ${params.tumor}.cobalt.ratio.pcf
-
-        if [ -f "${params.outdir}/cobalt/${params.normal}.cobalt.ratio.pcf" ]; then
-            ln -s ${params.outdir}/cobalt/${params.normal}.cobalt.ratio.pcf ${params.normal}.cobalt.ratio.pcf
-        fi
-    else
-        cobalt \\
-            -tumor ${params.tumor} \\
-            -tumor_bam ${tumorBam} ${reference_args} \\
-            -output_dir \$PWD \\
-            -threads ${params.cores} \\
-            -gc_profile ${params.gcProfile}
-    fi
+    cobalt \\
+        -tumor ${params.tumor} \\
+        -tumor_bam ${tumorBam} ${reference_args} \\
+        -output_dir \$PWD \\
+        -threads ${params.cores} \\
+        -gc_profile ${params.gcProfile}
     """.stripIndent()
 }
 
 process binCobalt {
+    // Only when Unmatched
     tag "COBALT BIN on ${params.tumor}" + (params.normal ? " and ${params.normal}" : "")
     publishDir "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR", mode: 'copy'
     cpus 1
@@ -149,33 +131,23 @@ process binCobalt {
     input:
     path cobalt_tumor_ratio_tsv
     path cobalt_tumor_ratio_pcf
-    path cobalt_normal_ratio_pcf
 
     output:
     path "${params.tumor}.cobalt.ratio.tsv.gz", emit: cobalt_tumor_ratio_tsv
     path "${params.tumor}.cobalt.ratio.pcf", emit: cobalt_tumor_ratio_pcf
-    path "${params.normal}.cobalt.ratio.pcf", emit: cobalt_normal_ratio_pcf
 
     script:
     """
-    # Bin Cobalt Tumor Probes
     bin_cobalt.py \\
         --in_pcf ${cobalt_tumor_ratio_pcf} \\
         --bin_probes ${params.binProbes} \\
         --bin_log_r ${params.binLogR}
-
-    # Bin Cobalt Normal probes
-    if [ -f "${cobalt_normal_ratio_pcf}" ]; then
-        bin_cobalt.py \\
-            --in_pcf ${cobalt_normal_ratio_pcf} \\
-            --bin_probes ${params.binProbes} \\
-            --bin_log_r ${params.binLogR}
-    fi
     """.stripIndent()
 }
 
 // See https://github.com/hartwigmedical/hmftools/blob/master/sage/README.md#usage
 process runSage {
+    // Only when matched
     tag "SAGE on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
     publishDir "${params.outdir}/sage", mode: 'copy'
     cpus params.cores
@@ -222,7 +194,7 @@ process runPurple {
     path cobalt_tumor_ratio_pcf
     path cobalt_normal_ratio_pcf
     path cobalt_path
-    path sage_vcf
+    path somatic_vcf
 
     output:
     path "${params.tumor}.purple.purity.tsv", emit: purple_purity_tsv
@@ -242,8 +214,8 @@ process runPurple {
     script:
     def reference_args = params.normal ? """\\
         -reference ${params.normal}""" : ""
-    def somatic_vcf_args = params.normal && sage_vcf ? """\\
-        -somatic_vcf ${sage_vcf}""" : ""
+    def somatic_vcf_args = params.normal && somatic_vcf ? """\\
+        -somatic_vcf ${somatic_vcf}""" : ""
 
     """
     purple \\
@@ -265,34 +237,45 @@ process runPurple {
 
 workflow {
     // Input Bams
-    tumorBam = Channel.fromPath(params.tumorBam)
-    normalBam = Channel.fromPath(params.normalBam)
+    tumorBam = params.tumorBam ? Channel.fromPath(params.tumorBam) : error("tumorBam is required")
+    normalBam = params.normalBam ? Channel.fromPath(params.normalBam) : Channel.empty()
 
-    // Run Amber, Cobalt and Sage
+    // Run Amber and Cobalt
     amberOutput = runAmber(tumorBam, normalBam)
     cobaltOutput = runCobalt(tumorBam, normalBam)
-    sageOutput = runSage(tumorBam, normalBam)
+    
+    cobaltOutdir = "${params.outdir}/cobalt"
 
-    // Bin Cobalt if expected
-    postCobaltOutput = (params.normalBam) && (params.binProbes != 0 || params.binLogR != 0)
-        ? binCobalt(cobaltOutput.cobalt_tumor_ratio_tsv, cobaltOutput.cobalt_tumor_ratio_pcf, cobaltOutput.cobalt_normal_ratio_pcf)
-        : cobaltOutput
+    // // Bin Cobalt, if unmatched and if any bin param is provided
+    // if ((!params.normal) && (params.binProbes != 0 || params.binLogR != 0)) {
+    //     cobaltOutdir = "${params.outdir}/cobalt"
+    // } else {
+    //     cobaltOutput = binCobalt(cobaltOutput.cobalt_tumor_ratio_tsv, cobaltOutput.cobalt_tumor_ratio_pcf)
+    //     cobaltOutput.cobalt_normal_ratio_pcf = NO_FILE
+    //     cobaltOutdir = "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR"
+    // }
 
-    cobaltOutdir = (params.normalBam) && (params.binProbes != 0 || params.binLogR != 0)
-        ? "${params.outdir}/cobalt/binned_${params.binProbes}_probes_${params.binLogR}_LogR"
-        : "${params.outdir}/cobalt"
+    // Run Sage, if matched
+    if (params.normal) {
+        sageOutput = runSage(tumorBam, normalBam)
+        somatic_vcf = sageOutput.sage_vcf
+        // amber_contamination_vcf = amberOutput.amber_contamination_vcf
+    } else {
+        somatic_vcf = null
+        // amber_contamination_vcf = null
+    }
 
     // Run Purple
     runPurple(
         amberOutput.amber_baf_tsv,
         amberOutput.amber_baf_pcf,
         amberOutput.amber_qc,
-        amberOutput.amber_contamination_vcf,
-        postCobaltOutput.cobalt_tumor_ratio_tsv,
-        postCobaltOutput.cobalt_tumor_ratio_pcf,
-        postCobaltOutput.cobalt_normal_ratio_pcf,
+        amberOutput.amber_contamination_vcf ?: NO_FILE,
+        cobaltOutput.cobalt_tumor_ratio_tsv,
+        cobaltOutput.cobalt_tumor_ratio_pcf,
+        cobaltOutput.cobalt_normal_ratio_pcf ?: NO_FILE,
         cobaltOutdir,
-        sageOutput.sage_vcf,
+        somatic_vcf ?: NO_FILE,
     )
 }
 

@@ -4,10 +4,13 @@ nextflow_process {
     script "main.nf"
     process "runSage"
 
-    test("Should run Sage with failure reading bam") {
-
+    test("Should run Sage in matched setting [Error expected]") {
         when {
             params {
+                tumor = "TEST_TUMOR"
+                normal = "TEST_NORMAL"
+                tumorBam = "${projectDir}/tests/data/input/tumor.bam"
+                normalBam = "${projectDir}/tests/data/input/normal.bam"
                 ensemblDataDir = "${projectDir}/tests/data/ref/ensembl_data"
             }
             process {
@@ -17,7 +20,6 @@ nextflow_process {
                 """
             }
         }
-
         then {
             // until better test data is added, expect a known error
             assert process.failed
@@ -35,5 +37,4 @@ nextflow_process {
             // }
         }
     }
-
 }
