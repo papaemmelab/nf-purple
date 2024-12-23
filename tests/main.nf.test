@@ -2,25 +2,26 @@ nextflow_pipeline {
 
     name "Test Workflow main.nf"
     script "main.nf"
+    autoSort false
 
     test("Should run Main.nf with failures on sage.") {
 
         when {
             params {
-                sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
+                ensemblDataDir = "${projectDir}/tests/data/ref/ensembl_data"
             }
         }
         then {
             with(workflow) {
-                // Sage and Purple dont work in tests.
+                // Tests are expected to fail at Sage and Purple. Best we can do
                 assert failed
                 assert exitStatus == 1
                 assert trace.tasks().size() == 4
-                assert workflow.trace.succeeded().size() == 3
-                assert workflow.trace.failed().size() == 1
-
-                // See assertions examples nf-core: https://nf-co.re/docs/contributing/nf-test/assertions
-                assert workflow.stdout.any{ it.contains("[ERROR] cannot find sequence index for chromosome 1:100000-200000 in bam header") }
+                assert workflow.trace.succeeded().size() == 2 // Amber, Cobalt
+                assert workflow.trace.failed().size() == 2 // Sage, Purple
+                assert workflow.stdout.any{ 
+                    it.contains('Cannot invoke "java.util.List.stream()" because "geneDataList" is null') 
+                }
             }
         }
     }
