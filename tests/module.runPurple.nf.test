@@ -1,0 +1,72 @@
+nextflow_process {
+
+    name "Test Process runPurple"
+    script "modules/purple.nf"
+    process "runPurple"
+
+    test("Should run Purple in matched setting. [Error expected on segmentation]") {
+        when {
+            params {
+                amber_baf_tsv = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.tsv.gz"
+                amber_baf_pcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.pcf"
+                amber_qc = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.qc"
+                cobalt_tumor_ratio_tsv = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.tsv.gz"
+                cobalt_tumor_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.pcf"
+                cobalt_path = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR"
+                sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
+            }
+            process {
+                """
+                input[0] = Channel.fromPath(params.amber_baf_tsv)
+                input[1] = Channel.fromPath(params.amber_baf_pcf)
+                input[2] = Channel.fromPath(params.amber_qc)
+                input[3] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
+                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
+                input[5] = Channel.fromPath(params.cobalt_path)
+                input[6] = Channel.fromPath(params.sage_vcf)
+                """
+            }
+        }
+        then {
+            // Best we can do. Purple fails with test data when trying to create the segmentation plots.
+            assert process.failed
+            assert process.exitStatus == 1
+            assert process.errorReport.contains("[ERROR]")
+            assert process.errorReport.contains("com.hartwig.hmftools.purple.segment.PurpleSegmentFactory.create(PurpleSegmentFactory.java:96")
+        }
+    }
+
+    test("Should run Purple in unmatched setting. [Error expected on segmentation]") {
+        when {
+            params {
+                normal = null
+                normalBam = "${projectDir}/assets/NO_FILE"
+                amber_baf_tsv = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.tsv.gz"
+                amber_baf_pcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.pcf"
+                amber_qc = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.qc"
+                cobalt_tumor_ratio_tsv = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.tsv.gz"
+                cobalt_tumor_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.pcf"
+                cobalt_path = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR"
+                sage_vcf = "${projectDir}/assets/NO_FILE"
+            }
+            process {
+                """
+                input[0] = Channel.fromPath(params.amber_baf_tsv)
+                input[1] = Channel.fromPath(params.amber_baf_pcf)
+                input[2] = Channel.fromPath(params.amber_qc)
+                input[3] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
+                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
+                input[5] = Channel.fromPath(params.cobalt_path)
+                input[6] = Channel.fromPath(params.sage_vcf)
+                """
+            }
+        }
+        then {
+            // Best we can do. Purple fails with test data when trying to create the segmentation plots.
+            assert process.failed
+            assert process.exitStatus == 1
+            assert process.errorReport.contains("[ERROR]")
+            assert process.errorReport.contains("com.hartwig.hmftools.purple.segment.PurpleSegmentFactory.create(PurpleSegmentFactory.java:96")
+        }
+    }
+}

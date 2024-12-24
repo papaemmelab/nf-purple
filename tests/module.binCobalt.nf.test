@@ -1,0 +1,34 @@
+nextflow_process {
+
+    name "Test Process binCobalt"
+    script "modules/cobalt.nf"
+    process "binCobalt"
+
+    test("Should bin Cobalt output in unmatched setting") {
+
+        when {
+            params {
+                cobalt_tumor_ratio_tsv = "${projectDir}/tests/data/cobalt/TEST_TUMOR.cobalt.ratio.tsv.gz"
+                cobalt_tumor_ratio_pcf = "${projectDir}/tests/data/cobalt/TEST_TUMOR.cobalt.ratio.pcf"
+            }
+            process {
+                """
+                input[0] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
+                input[1] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.trace.tasks().size() == 1
+            
+            // check expected files
+            with(process.out) {
+                assert cobalt_tumor_ratio_tsv.size() == 1
+                assert cobalt_tumor_ratio_pcf.size() == 1
+            }
+        }
+    }
+
+}

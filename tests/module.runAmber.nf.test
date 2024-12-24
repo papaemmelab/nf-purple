@@ -1,0 +1,65 @@
+nextflow_process {
+
+    name "Test Process runAmber"
+    script "modules/amber.nf"
+    process "runAmber"
+
+    test("Should run Amber in matched setting") {
+        when {
+            params {
+                tumor = "TEST_TUMOR"
+                normal = "TEST_NORMAL"
+                tumorBam = "${projectDir}/tests/data/input/tumor.bam"
+                normalBam = "${projectDir}/tests/data/input/normal.bam"
+            }
+            process {
+                """
+                input[0] = [params.tumor, "${params.tumorBam}", "${params.tumorBam}.bai"]
+                input[1] = [params.normal, "${params.normalBam}", "${params.normalBam}.bai"]
+                """
+            }
+        }
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+            assert process.trace.tasks().size() == 1
+            
+            // check expected files
+            with(process.out) {
+                assert amber_baf_pcf.size() == 1
+                assert amber_baf_tsv.size() == 1
+                assert amber_qc.size() == 1
+                assert amber_contamination_vcf.size() == 1
+            }
+        }
+    }
+    test("Should run Amber in unmatched setting") {
+        when {
+            params {
+                tumor = "TEST_TUMOR"
+                normal = null
+                tumorBam = "${projectDir}/tests/data/input/tumor.bam"
+                normalBam = "${projectDir}/assets/NO_FILE"
+            }
+            process {
+                """
+                input[0] = [params.tumor, "${params.tumorBam}", "${params.tumorBam}.bai"]
+                input[1] = [params.normal, "${params.normalBam}", "${params.normalBam}.bai"]
+                """
+            }
+        }
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+            assert process.trace.tasks().size() == 1
+            
+            // check expected files
+            with(process.out) {
+                assert amber_baf_pcf.size() == 1
+                assert amber_baf_tsv.size() == 1
+                assert amber_qc.size() == 1
+                assert amber_contamination_vcf.size() == 0
+            }
+        }
+    }
+}
