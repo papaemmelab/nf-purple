@@ -15,7 +15,7 @@ DIR_IN=tests/data/ensembl_data_original
 DIR_OUT=tests/data/ensembl_data
 
 # For
-awk -F, 'NR==1 || ($3 == "1" && $5 >= 100000 && $6 <= 200000) || ($3 == "2" && $5 >= 300000 && $6 <= 400000)' $DIR_IN/ensemble_gene_data.csv > $DIR_OUT/ensemble_gene_data.csv
+awk -F, 'NR==1 || ($3 == "1" && $5 >= 100000 && $6 <= 200000) || ($3 == "2" && $5 >= 300000 && $6 <= 400000)' $DIR_IN/ensembl_gene_data.csv > $DIR_OUT/ensembl_gene_data.csv
 ```
 
 # Sage VCF:

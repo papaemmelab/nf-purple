@@ -1,3 +1,4 @@
+# Dockerfile use for papaemme/purple:v0.1.1
 FROM papaemmelab/docker-hmftools:v1.0.0
 
 # Clean up to free space
