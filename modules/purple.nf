@@ -16,26 +16,8 @@ process runPurple {
     path somatic_vcf
 
     output:
-    path "${params.tumor}.purple.cnv.gene.tsv"
-    path "${params.tumor}.purple.cnv.somatic.tsv"
-    path "${params.tumor}.purple.germline.deletion.tsv", optional: true
-    path "${params.tumor}.purple.purity.range.tsv"
-    path "${params.tumor}.purple.purity.tsv"
-    path "${params.tumor}.purple.qc"
-    path "${params.tumor}.purple.segment.tsv"
-    path "${params.tumor}.purple.somatic.clonality.tsv"
-    path "${params.tumor}.purple.somatic.hist.tsv", optional: true
-    path "${params.tumor}.purple.somatic.vcf.gz", optional: true
-    path "${params.tumor}.purple.somatic.vcf.gz.tbi", optional: true
-    path "plot/${params.tumor}.circos.png"
-    path "plot/${params.tumor}.copynumber.png"
-    path "plot/${params.tumor}.input.png"
-    path "plot/${params.tumor}.map.png"
-    path "plot/${params.tumor}.purity.range.png"
-    path "plot/${params.tumor}.segment.png"
-    path "plot/${params.tumor}.somatic.clonality.png", optional: true
-    path "plot/${params.tumor}.somatic.png", optional: true
-    path "plot/${params.tumor}.somatic.rainfall.png", optional: true
+    path "${params.tumor}.purple.*", emit: purple_outfiles
+    path "plot/${params.tumor}.*.png", emit: purple_plots
 
     script:
     def reference_args = params.normal ? """\\
