@@ -1,7 +1,7 @@
 nextflow_process {
 
     name "Test Process binCobalt"
-    script "main.nf"
+    script "modules/cobalt.nf"
     process "binCobalt"
 
     test("Should bin Cobalt output in unmatched setting") {

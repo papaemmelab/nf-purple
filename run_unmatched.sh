@@ -6,7 +6,7 @@ TUMOR=IID_H211025_T01_01_WG01
 TUMOR_BAM=`isabl get-bams ${TUMOR}`
 
 NF_PURPLE=/data1/papaemme/isabl/home/svc_papaemme_bot/dev/nf-purple/main.nf
-OUTDIR=/data1/papaemme/isabl/home/svc_papaemme_bot/tmp/purple_unmatched/
+OUTDIR=/data1/papaemme/isabl/home/svc_papaemme_bot/tmp/purple_unmatched
 REFGENOME=/data1/papaemme/isabl/ref/homo_sapiens/GRCh37d5/gr37.fasta
 GENOMEVERSION=37
 
@@ -37,4 +37,5 @@ nextflow run \
     --cores 16 \
     --memory '64G' \
     --binProbes 100 \
-    --binLogR 0.5
+    --binLogR 0.5 \
+    -resume
