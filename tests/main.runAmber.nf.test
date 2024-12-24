@@ -28,8 +28,8 @@ nextflow_process {
             with(process.out) {
                 assert amber_baf_pcf.size() == 1
                 assert amber_baf_tsv.size() == 1
-                assert amber_contamination_vcf.size() == 1
                 assert amber_qc.size() == 1
+                assert amber_contamination_vcf.size() == 1
             }
         }
     }
@@ -58,8 +58,8 @@ nextflow_process {
             with(process.out) {
                 assert amber_baf_pcf.size() == 1
                 assert amber_baf_tsv.size() == 1
-                assert amber_contamination_vcf.size() == 1
                 assert amber_qc.size() == 1
+                assert amber_contamination_vcf.size() == 0
             }
         }
     }
