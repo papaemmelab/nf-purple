@@ -10,10 +10,8 @@ nextflow_process {
                 amber_baf_tsv = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.tsv.gz"
                 amber_baf_pcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.pcf"
                 amber_qc = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.qc"
-                amber_contamination_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.contamination.vcf.gz"
                 cobalt_tumor_ratio_tsv = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.tsv.gz"
                 cobalt_tumor_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.pcf"
-                cobalt_normal_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_NORMAL.cobalt.ratio.pcf"
                 cobalt_path = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR"
                 sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
             }
@@ -22,12 +20,10 @@ nextflow_process {
                 input[0] = Channel.fromPath(params.amber_baf_tsv)
                 input[1] = Channel.fromPath(params.amber_baf_pcf)
                 input[2] = Channel.fromPath(params.amber_qc)
-                input[3] = Channel.fromPath(params.amber_contamination_vcf)
-                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
-                input[5] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
-                input[6] = Channel.fromPath(params.cobalt_normal_ratio_pcf)
-                input[7] = Channel.fromPath(params.cobalt_path)
-                input[8] = Channel.fromPath(params.sage_vcf)
+                input[3] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
+                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
+                input[5] = Channel.fromPath(params.cobalt_path)
+                input[6] = Channel.fromPath(params.sage_vcf)
                 """
             }
         }
@@ -48,24 +44,20 @@ nextflow_process {
                 amber_baf_tsv = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.tsv.gz"
                 amber_baf_pcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.baf.pcf"
                 amber_qc = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.qc"
-                amber_contamination_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR.amber.contamination.vcf.gz"
                 cobalt_tumor_ratio_tsv = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.tsv.gz"
                 cobalt_tumor_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_TUMOR.cobalt.ratio.pcf"
-                cobalt_normal_ratio_pcf = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR/TEST_NORMAL.cobalt.ratio.pcf"
                 cobalt_path = "${projectDir}/tests/data/cobalt/binned_100_probes_0.5_LogR"
-                sage_vcf = "${projectDir}/tests/data/sage/TEST_TUMOR_vs_TEST_NORMAL.vcf.gz"
+                sage_vcf = "${projectDir}/assets/NO_FILE"
             }
             process {
                 """
                 input[0] = Channel.fromPath(params.amber_baf_tsv)
                 input[1] = Channel.fromPath(params.amber_baf_pcf)
                 input[2] = Channel.fromPath(params.amber_qc)
-                input[3] = Channel.fromPath(params.amber_contamination_vcf)
-                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
-                input[5] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
-                input[6] = Channel.fromPath(params.cobalt_normal_ratio_pcf)
-                input[7] = Channel.fromPath(params.cobalt_path)
-                input[8] = Channel.fromPath(params.sage_vcf)
+                input[3] = Channel.fromPath(params.cobalt_tumor_ratio_tsv)
+                input[4] = Channel.fromPath(params.cobalt_tumor_ratio_pcf)
+                input[5] = Channel.fromPath(params.cobalt_path)
+                input[6] = Channel.fromPath(params.sage_vcf)
                 """
             }
         }

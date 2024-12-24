@@ -15,8 +15,8 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = Channel.fromPath(params.tumorBam)
-                input[1] = Channel.fromPath(params.normalBam)
+                input[0] = [params.tumor, "${params.tumorBam}", "${params.tumorBam}.bai"]
+                input[1] = [params.normal, "${params.normalBam}", "${params.normalBam}.bai"]
                 """
             }
         }

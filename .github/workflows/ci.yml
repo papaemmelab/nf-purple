@@ -21,7 +21,6 @@ jobs:
         run: |
           docker pull papaemmelab/purple:v0.1.1
           docker pull quay.io/biocontainers/hmftools-sage:3.4.4--hdfd78af_0
-      - name: Run unit tests of each process for Amber, Cobalt, binCobalt, Sage, Purple
-        id: run_test
+      - name: Run unit tests for process module and main workflow
         run: |
-          nf-test test --ci --config tests/nf-test.matched.config --coverage
+          nf-test test --ci --coverage
