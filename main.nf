@@ -38,14 +38,38 @@ log.info(logMessage.stripIndent())
 
 def printHelpMessage() {
     helpMessage = """\
-        PURPLE is a purity ploidy estimator primarily designed for whole genome 
-        sequenced (WGS) data. It combines B-allele frequency (BAF) from AMBER, 
-        read depth ratios from COBALT, somatic variants and structural variants 
-        to estimate the purity and copy number profile of a tumor sample. PURPLE 
-        supports both grch 37 and 38 reference assemblies.
+    Usage:  nextflow run papaemmelab/nf-purple -r main [options]
 
-        For more info please see: 
-        https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md
+    PURPLE is a purity/ploidy estimator designed for whole genome sequenced (WGS) data.
+    It runs: Amber, Cobalt, Sage (matched mode only), and Purple.
+    For more: https://github.com/hartwigmedical/hmftools/blob/master/purple/README.md
+
+
+    * Options:
+        --tumor             Name of tumor sample (required)
+        --tumorBam          Path to indexed tumor bam/cram file (required).
+        --outdir            Path to the output directory. This directory will be
+                            created if it does not already exist.
+        --refGenome         Path to the reference genome fasta file (required
+                            only when using CRAM files).
+        --loci              Path to BAF loci vcf file (required).
+        --gcProfile         Location of HMFtools GC Profile (required).
+        --ensemblDataDir    Ensembl data file directory (required).
+        --circos            Location of circos binary (required)
+        --genomeVersion     Ref genome version, 37 or 38 (default: 37).
+        --cores             Cores/CPUs to use by executor (default: 1).
+        --memory            Memory to allocate by executor (default: 4 GB).
+        --minPurity         Minimum purity (default: 0.08).
+        --maxPurity         Maximum purity (default: 1.0).
+
+    * Required for Matched Mode:
+        --normal            Name of normal sample (required on matched mode)
+        --normalBam         Path to normal bam/cram file (required on matched mode)
+
+    * Required for Unmatched Mode:
+        --diploidRegions    Diploid regions (required for unmatched mode)
+        --binProbes         Max probe bin size, for unmatched mode (default: 0).
+        --binLogR           Max probe logR diff to bin, for unmatched mode (default: 0).
     """
     log.info(helpMessage.stripIndent())
 }
