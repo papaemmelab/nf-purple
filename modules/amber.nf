@@ -18,8 +18,8 @@ process runAmber {
 
     script:
     def reference_args = normal ? """\\
-            -reference ${normal} \\
-            -reference_bam ${normalBam} """  : ""
+        -reference ${normal} \\
+        -reference_bam ${normalBam} """  : ""
 
     """
     amber \\

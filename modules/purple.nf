@@ -2,7 +2,7 @@
 process runPurple {
     tag "PURPLE on ${params.tumor}" + (params.normal ? " vs ${params.normal}" : "")
     publishDir "${params.outdir}/purple/purple_${params.minPurity}_${params.maxPurity}", mode: 'copy'
-    cpus params.cores
+    cpus Math.min(params.cores as int, 4)
     memory params.memory
     time '1h'
 

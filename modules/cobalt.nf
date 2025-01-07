@@ -17,9 +17,9 @@ process runCobalt {
 
     script:
     def reference_args = normal ? """\\
-            -reference ${normal} \\
-            -reference_bam ${normalBam}""" : """\\
-            -tumor_only_diploid_bed ${params.diploidRegions}"""
+        -reference ${normal} \\
+        -reference_bam ${normalBam}""" : """\\
+        -tumor_only_diploid_bed ${params.diploidRegions}"""
 
     """
     cobalt \\

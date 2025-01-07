@@ -15,8 +15,8 @@ def logMessage = """\
     tumorBam       : ${params.tumorBam}
 """
 logMessage += (params.normal && params.normalBam) ? """\
-    normal        : ${params.normal}
-    normalBam     : ${params.normalBam}
+    normal         : ${params.normal}
+    normalBam      : ${params.normalBam}
 """ : ""
 logMessage += """\
     outdir         : ${params.outdir}
